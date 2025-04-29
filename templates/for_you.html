@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content bg-[#121212]">
+    <!-- Top Navigation -->
+    <div class="sticky top-0 z-40 bg-[#121212] px-4 md:px-8 py-4 flex items-center justify-between">
+        <div class="relative w-full md:w-auto">
+            <form action="{% url 'song_list' %}" method="GET">
+                <svg class="w-5 h-5 text-black absolute left-3 top-1/2 -translate-y-1/2" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28z"/>
+                </svg>
+                <input type="search" 
+                       name="search"
+                       placeholder="Search in recommendations" 
+                       class="w-full md:w-80 py-2 md:py-3 pl-10 pr-4 bg-white rounded-full text-sm text-black placeholder-gray-500 focus:outline-none">
+                <button type="submit" class="hidden">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="px-4 md:px-8 py-4 md:py-6">
+        <!-- For You Banner -->
+        <div class="relative bg-gradient-to-r from-purple-500 to-blue-600 rounded-xl p-6 md:p-8 mb-8 overflow-hidden">
+            <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div class="w-24 h-24 md:w-44 md:h-44 flex-shrink-0 bg-[#282828] shadow-xl rounded-md overflow-hidden">
+                    <svg class="w-full h-full text-white p-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <p class="text-xs md:text-sm uppercase font-bold text-white mb-1">Personalized</p>
+                    <h1 class="text-2xl md:text-5xl font-bold text-white mb-2">For You</h1>
+                    <p class="text-white text-opacity-80 text-sm md:text-base">
+                        Music recommendations based on your listening history
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Mix -->
+        <section class="mb-8">
+            <h2 class="text-xl md:text-2xl font-bold text-white mb-4">Your Daily Mixes</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
+                <div class="bg-[#181818] rounded-lg p-3 md:p-4 hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative mb-3 md:mb-4">
+                        <img src="https://via.placeholder.com/300" alt="Daily Mix 1" class="w-full aspect-square object-cover rounded shadow-lg">
+                        <button class="absolute bottom-2 right-2 w-10 h-10 md:w-12 md:h-12 bg-[#1ed760] rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                            <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <h3 class="font-medium md:font-bold text-sm md:text-base text-white truncate">Daily Mix 1</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1 truncate">Pop, Rock, Indie</p>
+                </div>
+                <div class="bg-[#181818] rounded-lg p-3 md:p-4 hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative mb-3 md:mb-4">
+                        <img src="https://via.placeholder.com/300" alt="Daily Mix 2" class="w-full aspect-square object-cover rounded shadow-lg">
+                        <button class="absolute bottom-2 right-2 w-10 h-10 md:w-12 md:h-12 bg-[#1ed760] rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                            <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <h3 class="font-medium md:font-bold text-sm md:text-base text-white truncate">Daily Mix 2</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1 truncate">Hip Hop, R&B</p>
+                </div>
+                <div class="bg-[#181818] rounded-lg p-3 md:p-4 hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative mb-3 md:mb-4">
+                        <img src="https://via.placeholder.com/300" alt="Daily Mix 3" class="w-full aspect-square object-cover rounded shadow-lg">
+                        <button class="absolute bottom-2 right-2 w-10 h-10 md:w-12 md:h-12 bg-[#1ed760] rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                            <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <h3 class="font-medium md:font-bold text-sm md:text-base text-white truncate">Daily Mix 3</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1 truncate">Electronic, Dance</p>
+                </div>
+                <div class="bg-[#181818] rounded-lg p-3 md:p-4 hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative mb-3 md:mb-4">
+                        <img src="https://via.placeholder.com/300" alt="Daily Mix 4" class="w-full aspect-square object-cover rounded shadow-lg">
+                        <button class="absolute bottom-2 right-2 w-10 h-10 md:w-12 md:h-12 bg-[#1ed760] rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                            <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <h3 class="font-medium md:font-bold text-sm md:text-base text-white truncate">Daily Mix 4</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1 truncate">Jazz, Blues</p>
+                </div>
+                <div class="bg-[#181818] rounded-lg p-3 md:p-4 hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative mb-3 md:mb-4">
+                        <img src="https://via.placeholder.com/300" alt="Daily Mix 5" class="w-full aspect-square object-cover rounded shadow-lg">
+                        <button class="absolute bottom-2 right-2 w-10 h-10 md:w-12 md:h-12 bg-[#1ed760] rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                            <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <h3 class="font-medium md:font-bold text-sm md:text-base text-white truncate">Daily Mix 5</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1 truncate">Classical, Instrumental</p>
+                </div>
+                <div class="bg-[#181818] rounded-lg p-3 md:p-4 hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative mb-3 md:mb-4">
+                        <img src="https://via.placeholder.com/300" alt="Daily Mix 6" class="w-full aspect-square object-cover rounded shadow-lg">
+                        <button class="absolute bottom-2 right-2 w-10 h-10 md:w-12 md:h-12 bg-[#1ed760] rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                            <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <h3 class="font-medium md:font-bold text-sm md:text-base text-white truncate">Daily Mix 6</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1 truncate">Folk, Country</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Based on Your Recent Listening -->
+        <section class="mb-8">
+            <h2 class="text-xl md:text-2xl font-bold text-white mb-4">Based on Your Recent Listening</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+                {% for song in songs|slice:":5" %}
+                <div class="bg-[#181818] rounded-lg p-3 md:p-4 hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative mb-3 md:mb-4">
+                        <img src="{{ song.image.url|default:'https://via.placeholder.com/150' }}" 
+                             alt="{{ song.title }}" 
+                             class="w-full aspect-square object-cover rounded shadow-lg">
+                        <button onclick="playSong('{{ song.id }}', '{{ song.audio_file.url }}', '{{ song.title }}', '{{ song.artist }}')"
+                                class="absolute bottom-2 right-2 w-10 h-10 md:w-12 md:h-12 bg-[#1ed760] rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                            <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <h3 class="font-medium md:font-bold text-sm md:text-base text-white truncate">{{ song.title }}</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1 truncate">{{ song.artist }}</p>
+                    <audio id="music-{{ song.id }}" src="{{ song.audio_file.url }}" preload="metadata"></audio>
+                </div>
+                {% empty %}
+                <div class="col-span-full text-center py-8 text-gray-400">
+                    <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
+                    </svg>
+                    <h2 class="text-xl font-bold text-white mb-2">Listen to more music to get personalized recommendations</h2>
+                    <p class="text-gray-400 max-w-md mx-auto">We'll provide better recommendations as you listen to more songs.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Made For You -->
+        <section class="mb-8">
+            <h2 class="text-xl md:text-2xl font-bold text-white mb-4">Made For You</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                <div class="bg-[#181818] rounded-lg p-3 md:p-4 hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative mb-3 md:mb-4">
+                        <img src="https://via.placeholder.com/400x200" alt="Discover Weekly" class="w-full h-32 object-cover rounded shadow-lg">
+                        <button class="absolute bottom-2 right-2 w-10 h-10 md:w-12 md:h-12 bg-[#1ed760] rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                            <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <h3 class="font-medium md:font-bold text-sm md:text-base text-white truncate">Discover Weekly</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1">Your weekly mixtape of fresh music and deep cuts chosen just for you. Updates every Monday.</p>
+                </div>
+                <div class="bg-[#181818] rounded-lg p-3 md:p-4 hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative mb-3 md:mb-4">
+                        <img src="https://via.placeholder.com/400x200" alt="Release Radar" class="w-full h-32 object-cover rounded shadow-lg">
+                        <button class="absolute bottom-2 right-2 w-10 h-10 md:w-12 md:h-12 bg-[#1ed760] rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                            <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <h3 class="font-medium md:font-bold text-sm md:text-base text-white truncate">Release Radar</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1">Catch all the latest music from artists you follow. Updates every Friday.</p>
+                </div>
+                <div class="bg-[#181818] rounded-lg p-3 md:p-4 hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative mb-3 md:mb-4">
+                        <img src="https://via.placeholder.com/400x200" alt="Time Capsule" class="w-full h-32 object-cover rounded shadow-lg">
+                        <button class="absolute bottom-2 right-2 w-10 h-10 md:w-12 md:h-12 bg-[#1ed760] rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                            <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <h3 class="font-medium md:font-bold text-sm md:text-base text-white truncate">Your Time Capsule</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1">A personalized playlist of songs that take you back to your teenage years.</p>
+                </div>
+                <div class="bg-[#181818] rounded-lg p-3 md:p-4 hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative mb-3 md:mb-4">
+                        <img src="https://via.placeholder.com/400x200" alt="On Repeat" class="w-full h-32 object-cover rounded shadow-lg">
+                        <button class="absolute bottom-2 right-2 w-10 h-10 md:w-12 md:h-12 bg-[#1ed760] rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                            <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <h3 class="font-medium md:font-bold text-sm md:text-base text-white truncate">On Repeat</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1">Songs you've been playing over and over again. Updates every few days.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<style>
+    /* Make play buttons visible on touch devices */
+    @media (hover: none) {
+        .group:hover .opacity-0 {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+        }
+    }
+</style>
+{% endblock %} 

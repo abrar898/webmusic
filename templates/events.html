@@ -1,0 +1,249 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content bg-[#121212]">
+    <!-- Top Navigation -->
+    <div class="sticky top-0 z-40 bg-[#121212] px-4 md:px-8 py-4 flex items-center justify-between">
+        <div class="relative w-full md:w-auto">
+            <form action="{% url 'song_list' %}" method="GET">
+                <svg class="w-5 h-5 text-black absolute left-3 top-1/2 -translate-y-1/2" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28z"/>
+                </svg>
+                <input type="search" 
+                       name="search"
+                       placeholder="Search for events" 
+                       class="w-full md:w-80 py-2 md:py-3 pl-10 pr-4 bg-white rounded-full text-sm text-black placeholder-gray-500 focus:outline-none">
+                <button type="submit" class="hidden">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="px-4 md:px-8 py-4 md:py-6">
+        <!-- Events Banner -->
+        <div class="relative bg-gradient-to-r from-pink-500 to-purple-700 rounded-xl p-6 md:p-8 mb-8 overflow-hidden">
+            <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div class="w-24 h-24 md:w-44 md:h-44 flex-shrink-0 bg-[#282828] shadow-xl rounded-md overflow-hidden">
+                    <svg class="w-full h-full text-white p-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <p class="text-xs md:text-sm uppercase font-bold text-white mb-1">Experience</p>
+                    <h1 class="text-2xl md:text-5xl font-bold text-white mb-2">Live Events</h1>
+                    <p class="text-white text-opacity-80 text-sm md:text-base">
+                        Discover concerts, festivals and music events happening near you
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Featured Events -->
+        <section class="mb-8">
+            <h2 class="text-xl md:text-2xl font-bold text-white mb-4">Featured Events</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                <div class="bg-[#181818] rounded-lg overflow-hidden hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/800x400" 
+                             alt="Event Title" 
+                             class="w-full h-40 md:h-48 object-cover">
+                        <div class="absolute top-0 left-0 bg-black bg-opacity-50 text-white px-3 py-1 text-sm">
+                            JUN 15
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-3">
+                            <h3 class="font-bold text-white truncate">Summer Music Festival</h3>
+                            <p class="text-sm text-gray-300 truncate">Multiple Artists</p>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <p class="text-gray-400 text-sm mb-3">Madison Square Garden, New York • 6:00 PM</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-white font-medium">$45-$150</span>
+                            <a href="#" class="bg-white text-black px-4 py-2 rounded-full text-sm font-medium hover:bg-opacity-80 transition-colors">Get Tickets</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-[#181818] rounded-lg overflow-hidden hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/800x400" 
+                             alt="Event Title" 
+                             class="w-full h-40 md:h-48 object-cover">
+                        <div class="absolute top-0 left-0 bg-black bg-opacity-50 text-white px-3 py-1 text-sm">
+                            JUL 02
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-3">
+                            <h3 class="font-bold text-white truncate">Rock in the Park</h3>
+                            <p class="text-sm text-gray-300 truncate">Various Rock Bands</p>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <p class="text-gray-400 text-sm mb-3">Central Park, New York • 3:00 PM</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-white font-medium">$35-$120</span>
+                            <a href="#" class="bg-white text-black px-4 py-2 rounded-full text-sm font-medium hover:bg-opacity-80 transition-colors">Get Tickets</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-[#181818] rounded-lg overflow-hidden hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/800x400" 
+                             alt="Event Title" 
+                             class="w-full h-40 md:h-48 object-cover">
+                        <div class="absolute top-0 left-0 bg-black bg-opacity-50 text-white px-3 py-1 text-sm">
+                            AUG 08
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-3">
+                            <h3 class="font-bold text-white truncate">Electronic Nights</h3>
+                            <p class="text-sm text-gray-300 truncate">Top EDM DJs</p>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <p class="text-gray-400 text-sm mb-3">Club Sphere, Los Angeles • 10:00 PM</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-white font-medium">$55-$180</span>
+                            <a href="#" class="bg-white text-black px-4 py-2 rounded-full text-sm font-medium hover:bg-opacity-80 transition-colors">Get Tickets</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Upcoming Events -->
+        <section class="mb-8">
+            <h2 class="text-xl md:text-2xl font-bold text-white mb-4">Upcoming Events</h2>
+            <div class="bg-[#181818] rounded-lg overflow-hidden">
+                <!-- Event List -->
+                <div class="divide-y divide-gray-800">
+                    <div class="flex flex-col md:flex-row items-start md:items-center p-4 hover:bg-[#282828] transition-colors">
+                        <div class="w-16 text-center mr-4 text-white">
+                            <div class="text-sm text-gray-400">JUN</div>
+                            <div class="text-2xl font-bold">22</div>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-white font-medium">Pop Arena Tour</h3>
+                            <p class="text-sm text-gray-400">Artist Name • Barclays Center, New York</p>
+                        </div>
+                        <div class="flex items-center space-x-3 mt-2 md:mt-0">
+                            <span class="text-white">From $40</span>
+                            <a href="#" class="bg-transparent border border-white text-white px-3 py-1 rounded-full text-sm hover:bg-white hover:text-black transition-colors">
+                                Tickets
+                            </a>
+                        </div>
+                    </div>
+                    <div class="flex flex-col md:flex-row items-start md:items-center p-4 hover:bg-[#282828] transition-colors">
+                        <div class="w-16 text-center mr-4 text-white">
+                            <div class="text-sm text-gray-400">JUL</div>
+                            <div class="text-2xl font-bold">05</div>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-white font-medium">Jazz Night Festival</h3>
+                            <p class="text-sm text-gray-400">Various Artists • Blue Note, New York</p>
+                        </div>
+                        <div class="flex items-center space-x-3 mt-2 md:mt-0">
+                            <span class="text-white">From $30</span>
+                            <a href="#" class="bg-transparent border border-white text-white px-3 py-1 rounded-full text-sm hover:bg-white hover:text-black transition-colors">
+                                Tickets
+                            </a>
+                        </div>
+                    </div>
+                    <div class="flex flex-col md:flex-row items-start md:items-center p-4 hover:bg-[#282828] transition-colors">
+                        <div class="w-16 text-center mr-4 text-white">
+                            <div class="text-sm text-gray-400">JUL</div>
+                            <div class="text-2xl font-bold">18</div>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-white font-medium">Hip Hop Summit</h3>
+                            <p class="text-sm text-gray-400">Multiple Artists • Staples Center, Los Angeles</p>
+                        </div>
+                        <div class="flex items-center space-x-3 mt-2 md:mt-0">
+                            <span class="text-white">From $55</span>
+                            <a href="#" class="bg-transparent border border-white text-white px-3 py-1 rounded-full text-sm hover:bg-white hover:text-black transition-colors">
+                                Tickets
+                            </a>
+                        </div>
+                    </div>
+                    <div class="flex flex-col md:flex-row items-start md:items-center p-4 hover:bg-[#282828] transition-colors">
+                        <div class="w-16 text-center mr-4 text-white">
+                            <div class="text-sm text-gray-400">AUG</div>
+                            <div class="text-2xl font-bold">03</div>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-white font-medium">Indie Band Showcase</h3>
+                            <p class="text-sm text-gray-400">Various Bands • The Troubadour, Los Angeles</p>
+                        </div>
+                        <div class="flex items-center space-x-3 mt-2 md:mt-0">
+                            <span class="text-white">From $25</span>
+                            <a href="#" class="bg-transparent border border-white text-white px-3 py-1 rounded-full text-sm hover:bg-white hover:text-black transition-colors">
+                                Tickets
+                            </a>
+                        </div>
+                    </div>
+                    <div class="flex flex-col md:flex-row items-start md:items-center p-4 hover:bg-[#282828] transition-colors">
+                        <div class="w-16 text-center mr-4 text-white">
+                            <div class="text-sm text-gray-400">AUG</div>
+                            <div class="text-2xl font-bold">15</div>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-white font-medium">Summer EDM Festival</h3>
+                            <p class="text-sm text-gray-400">Top EDM Artists • Red Rocks Amphitheatre, Colorado</p>
+                        </div>
+                        <div class="flex items-center space-x-3 mt-2 md:mt-0">
+                            <span class="text-white">From $60</span>
+                            <a href="#" class="bg-transparent border border-white text-white px-3 py-1 rounded-full text-sm hover:bg-white hover:text-black transition-colors">
+                                Tickets
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Popular Venues -->
+        <section>
+            <h2 class="text-xl md:text-2xl font-bold text-white mb-4">Popular Venues</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
+                <a href="#" class="group">
+                    <div class="relative rounded-lg overflow-hidden h-32 md:h-40">
+                        <img src="https://via.placeholder.com/400x300" alt="Madison Square Garden" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-3">
+                            <h3 class="text-white font-medium text-sm md:text-base">Madison Square Garden</h3>
+                            <p class="text-xs text-gray-300">New York</p>
+                        </div>
+                    </div>
+                </a>
+                <a href="#" class="group">
+                    <div class="relative rounded-lg overflow-hidden h-32 md:h-40">
+                        <img src="https://via.placeholder.com/400x300" alt="The Forum" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-3">
+                            <h3 class="text-white font-medium text-sm md:text-base">The Forum</h3>
+                            <p class="text-xs text-gray-300">Los Angeles</p>
+                        </div>
+                    </div>
+                </a>
+                <a href="#" class="group">
+                    <div class="relative rounded-lg overflow-hidden h-32 md:h-40">
+                        <img src="https://via.placeholder.com/400x300" alt="Red Rocks Amphitheatre" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-3">
+                            <h3 class="text-white font-medium text-sm md:text-base">Red Rocks Amphitheatre</h3>
+                            <p class="text-xs text-gray-300">Colorado</p>
+                        </div>
+                    </div>
+                </a>
+                <a href="#" class="group">
+                    <div class="relative rounded-lg overflow-hidden h-32 md:h-40">
+                        <img src="https://via.placeholder.com/400x300" alt="O2 Arena" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-3">
+                            <h3 class="text-white font-medium text-sm md:text-base">O2 Arena</h3>
+                            <p class="text-xs text-gray-300">London</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %} 

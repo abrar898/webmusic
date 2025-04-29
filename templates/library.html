@@ -1,0 +1,319 @@
+{%extends 'base.html'%}
+
+{% block content %}
+<div class="main-content bg-[#121212]">
+    <!-- Top Navigation -->
+    <div class="sticky top-0 z-40 bg-[#121212] px-4 md:px-8 py-4 flex flex-wrap items-center justify-between">
+        <div class="flex items-center gap-2 md:gap-4 overflow-x-auto hide-scrollbar mb-2 md:mb-0 w-full md:w-auto">
+            <a href="{% url 'library_playlists' %}" class="{% if active_tab == 'playlists' %}text-white font-bold{% else %}text-gray-400{% endif %} hover:text-white whitespace-nowrap">Playlists</a>
+            <a href="{% url 'library_podcasts' %}" class="{% if active_tab == 'podcasts' %}text-white font-bold{% else %}text-gray-400{% endif %} hover:text-white whitespace-nowrap">Podcasts</a>
+            <a href="{% url 'library_artists' %}" class="{% if active_tab == 'artists' %}text-white font-bold{% else %}text-gray-400{% endif %} hover:text-white whitespace-nowrap">Artists</a>
+            <a href="{% url 'library_albums' %}" class="{% if active_tab == 'albums' %}text-white font-bold{% else %}text-gray-400{% endif %} hover:text-white whitespace-nowrap">Albums</a>
+            <a href="{% url 'library_favorites' %}" class="{% if active_tab == 'favorites' %}text-white font-bold{% else %}text-gray-400{% endif %} hover:text-white whitespace-nowrap">Favorites</a>
+            <a href="{% url 'library_downloaded' %}" class="{% if active_tab == 'downloaded' %}text-white font-bold{% else %}text-gray-400{% endif %} hover:text-white whitespace-nowrap">Downloaded</a>
+        </div>
+        <div class="relative w-full md:w-auto mt-2 md:mt-0">
+            <form action="{% url 'song_list' %}" method="GET">
+                <svg class="w-5 h-5 text-black absolute left-3 top-1/2 -translate-y-1/2" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28z"/>
+                </svg>
+                <input type="search" 
+                       name="search"
+                       placeholder="Artists, Songs or Podcasts" 
+                       class="w-full md:w-80 py-2 md:py-3 pl-10 pr-4 bg-white rounded-full text-sm text-black placeholder-gray-500 focus:outline-none">
+                <button type="submit" class="hidden">Search</button>
+            </form>
+        </div>
+        <div class="hidden md:flex items-center gap-4">
+            <div class="relative group">
+                <button class="flex items-center gap-2 text-white">
+                    <span>Recently played</span>
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+                    </svg>
+                </button>
+                <div class="absolute right-0 mt-2 w-48 bg-[#282828] rounded shadow-lg hidden group-hover:block">
+                    <div class="py-1">
+                        <a href="#" class="block px-4 py-2 text-sm text-white hover:bg-[#3e3e3e]">Most relevant</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-white hover:bg-[#3e3e3e]">Recently played</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-white hover:bg-[#3e3e3e]">Recently added</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-white hover:bg-[#3e3e3e]">Alphabetical</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-white hover:bg-[#3e3e3e]">Custom order</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <!-- Content -->
+    <div class="px-4 md:px-8 py-4 md:py-6">
+        <!-- New Create/Collection Controls -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-8">
+            <a href="{% url 'create_playlist' %}" class="inline-flex items-center gap-2 bg-white bg-opacity-10 hover:bg-opacity-20 transition-colors text-white px-4 py-2 rounded-full">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/>
+                </svg>
+                Create Playlist
+            </a>
+            <a href="{% url 'liked_songs' %}" class="inline-flex items-center gap-2 bg-white bg-opacity-10 hover:bg-opacity-20 transition-colors text-white px-4 py-2 rounded-full">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                </svg>
+                Liked Songs
+            </a>
+        </div>
+
+        <!-- Recently Added - NEW SECTION -->
+        <section class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl md:text-2xl font-bold text-white">Recently Added</h2>
+                <a href="#" class="text-sm text-gray-400 hover:text-white">See all</a>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+                <div class="bg-[#181818] rounded-lg p-3 md:p-4 hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative mb-3 md:mb-4">
+                        <img src="https://via.placeholder.com/150" 
+                             alt="New Playlist" 
+                             class="w-full aspect-square object-cover rounded shadow-lg">
+                        <div class="absolute bottom-2 right-2">
+                            <button class="w-10 h-10 md:w-12 md:h-12 bg-[#1ed760] rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                                <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="font-medium md:font-bold text-sm md:text-base text-white truncate">My New Playlist</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1 truncate">Added yesterday</p>
+                </div>
+                {% for song in songs|slice:":4" %}
+                <div class="bg-[#181818] rounded-lg p-3 md:p-4 hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative mb-3 md:mb-4">
+                        <img src="{{ song.image.url|default:'https://via.placeholder.com/150' }}" 
+                             alt="{{ song.title }}" 
+                             class="w-full aspect-square object-cover rounded shadow-lg">
+                        <button onclick="playSong('{{ song.id }}', '{{ song.audio_file.url }}', '{{ song.title }}', '{{ song.artist }}')"
+                                class="absolute bottom-2 right-2 w-10 h-10 md:w-12 md:h-12 bg-[#1ed760] rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                            <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <h3 class="font-medium md:font-bold text-sm md:text-base text-white truncate">{{ song.title }}</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1 truncate">{{ song.artist }}</p>
+                    <audio id="music-{{ song.id }}" src="{{ song.audio_file.url }}" preload="metadata"></audio>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Your Top Genres -->
+        <section class="mb-8">
+            <h2 class="text-xl md:text-2xl font-bold text-white mb-4">Your Top Genres</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+                <a href="#" class="relative h-36 md:h-48 bg-purple-600 rounded-lg overflow-hidden group hover:bg-purple-700 transition-colors">
+                    <div class="p-4">
+                        <h3 class="text-xl md:text-3xl font-bold text-white">Pop</h3>
+                    </div>
+                    <img src="https://via.placeholder.com/150" alt="Pop" class="absolute bottom-0 right-0 w-24 md:w-32 h-24 md:h-32 opacity-60">
+                </a>
+                <a href="#" class="relative h-36 md:h-48 bg-pink-600 rounded-lg overflow-hidden group hover:bg-pink-700 transition-colors">
+                    <div class="p-4">
+                        <h3 class="text-xl md:text-3xl font-bold text-white">Dance / Electronic</h3>
+                    </div>
+                    <img src="https://via.placeholder.com/150" alt="Dance" class="absolute bottom-0 right-0 w-24 md:w-32 h-24 md:h-32 opacity-60">
+                </a>
+                <a href="#" class="relative h-36 md:h-48 bg-orange-600 rounded-lg overflow-hidden group hover:bg-orange-700 transition-colors">
+                    <div class="p-4">
+                        <h3 class="text-xl md:text-3xl font-bold text-white">Hip hop</h3>
+                    </div>
+                    <img src="https://via.placeholder.com/150" alt="Hip hop" class="absolute bottom-0 right-0 w-24 md:w-32 h-24 md:h-32 opacity-60">
+                </a>
+            </div>
+        </section>
+
+        <!-- Recently Played Songs -->
+        <section class="mb-8">
+            <h2 class="text-xl md:text-2xl font-bold text-white mb-4">Recently Played</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+                {% for song in songs %}
+                <div class="bg-[#181818] rounded-lg p-3 md:p-4 hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative mb-3 md:mb-4">
+                        <img src="{{ song.image.url|default:'https://via.placeholder.com/150' }}" 
+                             alt="{{ song.title }}" 
+                             class="w-full aspect-square object-cover rounded shadow-lg">
+                        <button onclick="playSong('{{ song.id }}', '{{ song.audio_file.url }}', '{{ song.title }}', '{{ song.artist }}')"
+                                class="absolute bottom-2 right-2 w-10 h-10 md:w-12 md:h-12 bg-[#1ed760] rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                            <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <h3 class="font-medium md:font-bold text-sm md:text-base text-white truncate">{{ song.title }}</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1 truncate">{{ song.artist }}</p>
+                    <audio id="music-{{ song.id }}" src="{{ song.audio_file.url }}" preload="metadata"></audio>
+                </div>
+                {% empty %}
+                <div class="col-span-full text-center py-8 text-gray-400">
+                    <p>No songs available</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Favorite Artists - NEW SECTION -->
+        <section class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl md:text-2xl font-bold text-white">Your Favorite Artists</h2>
+                <a href="#" class="text-sm text-gray-400 hover:text-white">See all</a>
+            </div>
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4 md:gap-6">
+                <div class="text-center">
+                    <div class="mx-auto w-full aspect-square rounded-full overflow-hidden mb-3 relative">
+                        <img src="https://via.placeholder.com/150" alt="Artist Name" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-300"></div>
+                    </div>
+                    <h3 class="text-sm md:text-base font-medium text-white truncate">Taylor Swift</h3>
+                    <p class="text-xs text-gray-400 truncate">Artist</p>
+                </div>
+                <div class="text-center">
+                    <div class="mx-auto w-full aspect-square rounded-full overflow-hidden mb-3 relative">
+                        <img src="https://via.placeholder.com/150" alt="Artist Name" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-300"></div>
+                    </div>
+                    <h3 class="text-sm md:text-base font-medium text-white truncate">Ed Sheeran</h3>
+                    <p class="text-xs text-gray-400 truncate">Artist</p>
+                </div>
+                <div class="text-center">
+                    <div class="mx-auto w-full aspect-square rounded-full overflow-hidden mb-3 relative">
+                        <img src="https://via.placeholder.com/150" alt="Artist Name" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-300"></div>
+                    </div>
+                    <h3 class="text-sm md:text-base font-medium text-white truncate">Coldplay</h3>
+                    <p class="text-xs text-gray-400 truncate">Artist</p>
+                </div>
+                <div class="text-center">
+                    <div class="mx-auto w-full aspect-square rounded-full overflow-hidden mb-3 relative">
+                        <img src="https://via.placeholder.com/150" alt="Artist Name" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-300"></div>
+                    </div>
+                    <h3 class="text-sm md:text-base font-medium text-white truncate">Drake</h3>
+                    <p class="text-xs text-gray-400 truncate">Artist</p>
+                </div>
+                <div class="text-center">
+                    <div class="mx-auto w-full aspect-square rounded-full overflow-hidden mb-3 relative">
+                        <img src="https://via.placeholder.com/150" alt="Artist Name" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-300"></div>
+                    </div>
+                    <h3 class="text-sm md:text-base font-medium text-white truncate">Adele</h3>
+                    <p class="text-xs text-gray-400 truncate">Artist</p>
+                </div>
+                <div class="text-center">
+                    <div class="mx-auto w-full aspect-square rounded-full overflow-hidden mb-3 relative">
+                        <img src="https://via.placeholder.com/150" alt="Artist Name" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-300"></div>
+                    </div>
+                    <h3 class="text-sm md:text-base font-medium text-white truncate">Billie Eilish</h3>
+                    <p class="text-xs text-gray-400 truncate">Artist</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Browse All -->
+        <section>
+            <h2 class="text-xl md:text-2xl font-bold text-white mb-4">Browse All</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+                <a href="#" class="relative h-36 md:h-48 bg-emerald-600 rounded-lg overflow-hidden group hover:bg-emerald-700 transition-colors">
+                    <div class="p-4">
+                        <h3 class="text-lg md:text-2xl font-bold text-white">Podcasts</h3>
+                    </div>
+                    <img src="https://via.placeholder.com/150" alt="Podcasts" class="absolute bottom-0 right-0 w-20 md:w-24 h-20 md:h-24 opacity-60">
+                </a>
+                <a href="#" class="relative h-36 md:h-48 bg-blue-900 rounded-lg overflow-hidden group hover:bg-blue-800 transition-colors">
+                    <div class="p-4">
+                        <h3 class="text-lg md:text-2xl font-bold text-white">Made For You</h3>
+                    </div>
+                    <img src="https://via.placeholder.com/150" alt="Made For You" class="absolute bottom-0 right-0 w-20 md:w-24 h-20 md:h-24 opacity-60">
+                </a>
+                <a href="#" class="relative h-36 md:h-48 bg-purple-500 rounded-lg overflow-hidden group hover:bg-purple-600 transition-colors">
+                    <div class="p-4">
+                        <h3 class="text-lg md:text-2xl font-bold text-white">Lists</h3>
+                    </div>
+                    <img src="https://via.placeholder.com/150" alt="Lists" class="absolute bottom-0 right-0 w-20 md:w-24 h-20 md:h-24 opacity-60">
+                </a>
+                <a href="#" class="relative h-36 md:h-48 bg-pink-600 rounded-lg overflow-hidden group hover:bg-pink-700 transition-colors">
+                    <div class="p-4">
+                        <h3 class="text-lg md:text-2xl font-bold text-white">New Releases</h3>
+                    </div>
+                    <img src="https://via.placeholder.com/150" alt="New Releases" class="absolute bottom-0 right-0 w-20 md:w-24 h-20 md:h-24 opacity-60">
+                </a>
+                <a href="#" class="relative h-36 md:h-48 bg-orange-600 rounded-lg overflow-hidden group hover:bg-orange-700 transition-colors">
+                    <div class="p-4">
+                        <h3 class="text-lg md:text-2xl font-bold text-white">Discover</h3>
+                    </div>
+                    <img src="https://via.placeholder.com/150" alt="Discover" class="absolute bottom-0 right-0 w-20 md:w-24 h-20 md:h-24 opacity-60">
+                </a>
+            </div>
+
+            <!-- Second Row -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6 mt-4 md:mt-6">
+                <a href="#" class="relative h-20 md:h-24 bg-emerald-600 rounded-lg overflow-hidden group hover:bg-emerald-700 transition-colors">
+                    <div class="p-4">
+                        <h3 class="text-base md:text-xl font-bold text-white">Live Events</h3>
+                    </div>
+                </a>
+                <a href="#" class="relative h-20 md:h-24 bg-blue-600 rounded-lg overflow-hidden group hover:bg-blue-700 transition-colors">
+                    <div class="p-4">
+                        <h3 class="text-base md:text-xl font-bold text-white">Summer</h3>
+                    </div>
+                </a>
+                <a href="#" class="relative h-20 md:h-24 bg-purple-500 rounded-lg overflow-hidden group hover:bg-purple-600 transition-colors">
+                    <div class="p-4">
+                        <h3 class="text-base md:text-xl font-bold text-white">Popular</h3>
+                    </div>
+                </a>
+                <a href="#" class="relative h-20 md:h-24 bg-pink-600 rounded-lg overflow-hidden group hover:bg-pink-700 transition-colors">
+                    <div class="p-4">
+                        <h3 class="text-base md:text-xl font-bold text-white">Mood</h3>
+                    </div>
+                </a>
+                <a href="#" class="relative h-20 md:h-24 bg-orange-600 rounded-lg overflow-hidden group hover:bg-orange-700 transition-colors">
+                    <div class="p-4">
+                        <h3 class="text-base md:text-xl font-bold text-white">EQUAL</h3>
+                    </div>
+                </a>
+            </div>
+        </section>
+    </div>
+</div>
+
+<style>
+    /* Make play buttons visible on touch devices */
+    @media (hover: none) {
+        .group:hover .opacity-0 {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+        }
+    }
+    
+    /* Additional responsive styles */
+    .library-grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+    
+    @media (min-width: 768px) {
+        .library-grid {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        }
+    }
+</style>
+{% endblock %}
+
+{% block audio %}
+<!-- Note: We're now handling the audio player in the base template -->
+{% endblock %}
+
+

@@ -1,0 +1,150 @@
+{% extends 'library.html' %}
+
+{% block content %}
+<div class="main-content bg-[#121212]">
+    <!-- Top Navigation (Same as in library.html) -->
+    <div class="sticky top-0 z-40 bg-[#121212] px-4 md:px-8 py-4 flex flex-wrap items-center justify-between">
+        <div class="flex items-center gap-2 md:gap-4 overflow-x-auto hide-scrollbar mb-2 md:mb-0 w-full md:w-auto">
+            <a href="{% url 'library_playlists' %}" class="{% if active_tab == 'playlists' %}text-white font-bold{% else %}text-gray-400{% endif %} hover:text-white whitespace-nowrap">Playlists</a>
+            <a href="{% url 'library_podcasts' %}" class="{% if active_tab == 'podcasts' %}text-white font-bold{% else %}text-gray-400{% endif %} hover:text-white whitespace-nowrap">Podcasts</a>
+            <a href="{% url 'library_artists' %}" class="{% if active_tab == 'artists' %}text-white font-bold{% else %}text-gray-400{% endif %} hover:text-white whitespace-nowrap">Artists</a>
+            <a href="{% url 'library_albums' %}" class="{% if active_tab == 'albums' %}text-white font-bold{% else %}text-gray-400{% endif %} hover:text-white whitespace-nowrap">Albums</a>
+            <a href="{% url 'library_favorites' %}" class="{% if active_tab == 'favorites' %}text-white font-bold{% else %}text-gray-400{% endif %} hover:text-white whitespace-nowrap">Favorites</a>
+            <a href="{% url 'library_downloaded' %}" class="{% if active_tab == 'downloaded' %}text-white font-bold{% else %}text-gray-400{% endif %} hover:text-white whitespace-nowrap">Downloaded</a>
+        </div>
+        <div class="relative w-full md:w-auto mt-2 md:mt-0">
+            <form action="{% url 'song_list' %}" method="GET">
+                <svg class="w-5 h-5 text-black absolute left-3 top-1/2 -translate-y-1/2" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28z"/>
+                </svg>
+                <input type="search" 
+                       name="search"
+                       placeholder="Search podcasts" 
+                       class="w-full md:w-80 py-2 md:py-3 pl-10 pr-4 bg-white rounded-full text-sm text-black placeholder-gray-500 focus:outline-none">
+                <button type="submit" class="hidden">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="px-4 md:px-8 py-4 md:py-6">
+        <!-- Your Podcasts -->
+        <section class="mb-8">
+            <h2 class="text-xl md:text-2xl font-bold text-white mb-6">Podcasts</h2>
+            
+            {% if podcasts %}
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+                {% for podcast in podcasts %}
+                <div class="bg-[#181818] rounded-lg p-3 md:p-4 hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative mb-3 md:mb-4">
+                        <img src="{{ podcast.image.url|default:'https://via.placeholder.com/150' }}" 
+                             alt="{{ podcast.title }}" 
+                             class="w-full aspect-square object-cover rounded shadow-lg">
+                        <div class="absolute bottom-2 right-2">
+                            <button onclick="playSong('{{ podcast.id }}', '{{ podcast.audio_file.url }}', '{{ podcast.title }}', '{{ podcast.artist }}')" class="w-10 h-10 md:w-12 md:h-12 bg-[#1ed760] rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                                <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="font-medium md:font-bold text-sm md:text-base text-white truncate">{{ podcast.title }}</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1 truncate">{{ podcast.artist }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <!-- Podcasts Placeholder -->
+            <div class="text-center py-12">
+                <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/>
+                </svg>
+                <h2 class="text-xl font-bold text-white mb-2">No podcasts found</h2>
+                <p class="text-gray-400 max-w-md mx-auto">Follow podcasts to see them appear here.</p>
+                <a href="#" class="inline-block mt-4 bg-white text-black font-bold py-2 px-6 rounded-full hover:bg-opacity-90 transition-colors">Browse podcasts</a>
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- Popular Podcasts Section -->
+        <section class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl md:text-2xl font-bold text-white">Popular Podcasts</h2>
+                <a href="#" class="text-sm text-gray-400 hover:text-white">See all</a>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+                <div class="bg-[#181818] rounded-lg p-3 md:p-4 hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative mb-3 md:mb-4">
+                        <img src="https://via.placeholder.com/150" alt="Podcast Title" class="w-full aspect-square object-cover rounded shadow-lg">
+                        <div class="absolute bottom-2 right-2">
+                            <button class="w-10 h-10 md:w-12 md:h-12 bg-[#1ed760] rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                                <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="font-medium md:font-bold text-sm md:text-base text-white truncate">TED Talks Daily</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1 truncate">TED</p>
+                </div>
+                <div class="bg-[#181818] rounded-lg p-3 md:p-4 hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative mb-3 md:mb-4">
+                        <img src="https://via.placeholder.com/150" alt="Podcast Title" class="w-full aspect-square object-cover rounded shadow-lg">
+                        <div class="absolute bottom-2 right-2">
+                            <button class="w-10 h-10 md:w-12 md:h-12 bg-[#1ed760] rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                                <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="font-medium md:font-bold text-sm md:text-base text-white truncate">The Daily</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1 truncate">The New York Times</p>
+                </div>
+                <div class="bg-[#181818] rounded-lg p-3 md:p-4 hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative mb-3 md:mb-4">
+                        <img src="https://via.placeholder.com/150" alt="Podcast Title" class="w-full aspect-square object-cover rounded shadow-lg">
+                        <div class="absolute bottom-2 right-2">
+                            <button class="w-10 h-10 md:w-12 md:h-12 bg-[#1ed760] rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                                <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="font-medium md:font-bold text-sm md:text-base text-white truncate">Crime Junkie</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1 truncate">audiochuck</p>
+                </div>
+                <div class="bg-[#181818] rounded-lg p-3 md:p-4 hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative mb-3 md:mb-4">
+                        <img src="https://via.placeholder.com/150" alt="Podcast Title" class="w-full aspect-square object-cover rounded shadow-lg">
+                        <div class="absolute bottom-2 right-2">
+                            <button class="w-10 h-10 md:w-12 md:h-12 bg-[#1ed760] rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                                <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="font-medium md:font-bold text-sm md:text-base text-white truncate">Stuff You Should Know</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1 truncate">iHeartRadio</p>
+                </div>
+                <div class="bg-[#181818] rounded-lg p-3 md:p-4 hover:bg-[#282828] transition-all duration-300 relative group">
+                    <div class="relative mb-3 md:mb-4">
+                        <img src="https://via.placeholder.com/150" alt="Podcast Title" class="w-full aspect-square object-cover rounded shadow-lg">
+                        <div class="absolute bottom-2 right-2">
+                            <button class="w-10 h-10 md:w-12 md:h-12 bg-[#1ed760] rounded-full shadow-xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                                <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="font-medium md:font-bold text-sm md:text-base text-white truncate">Freakonomics Radio</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1 truncate">Freakonomics Radio + Stitcher</p>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %} 

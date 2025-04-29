@@ -1,0 +1,386 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Main Content -->
+<div class="main-content min-h-screen bg-gradient-to-b from-purple-900 via-[#121212] to-[#121212]">
+    <!-- Top Bar -->
+    <div class="top-bar sticky top-0 z-40 px-4 sm:px-6 md:px-8 py-4 flex items-center justify-between bg-[#121212] bg-opacity-90">
+        <div class="flex items-center space-x-2 sm:space-x-4">
+            <button onclick="history.back()" class="bg-black bg-opacity-50 rounded-full p-1">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <h1 class="text-xl sm:text-2xl font-bold text-white">Create New Playlist</h1>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="px-4 sm:px-6 md:px-8 py-4 sm:py-6">
+        <div class="max-w-4xl mx-auto">
+            <!-- Mode Toggle -->
+            <div class="mb-6 bg-[#181818] p-4 rounded-lg flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-4">
+                <span class="text-gray-300 text-sm">What would you like to do?</span>
+                <div class="flex space-x-3">
+                    <button id="newPlaylistBtn" class="px-4 py-2 bg-green-500 text-white rounded-full text-sm font-medium">Create New Playlist</button>
+                    <button id="addToExistingBtn" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-full text-sm font-medium">Add to Existing Playlist</button>
+                </div>
+            </div>
+
+            {% if error %}
+            <div class="bg-red-500 bg-opacity-20 border border-red-500 text-red-100 px-4 py-3 rounded-md mb-6">
+                <p>{{ error }}</p>
+            </div>
+            {% endif %}
+
+            <!-- New Playlist Form -->
+            <form id="createPlaylistForm" method="POST" action="{% url 'create_playlist' %}" class="mb-8">
+                {% csrf_token %}
+                <div class="mb-6">
+                    <label for="playlist_name" class="block text-white text-base sm:text-lg font-medium mb-2">Playlist Name</label>
+                    <input type="text" id="playlist_name" name="playlist_name" required
+                           class="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white bg-opacity-10 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="My Awesome Playlist">
+                </div>
+                
+                <div class="mb-4">
+                    <h2 class="text-lg sm:text-xl font-semibold text-white mb-2">Select Songs</h2>
+                    <p class="text-gray-400 mb-4 text-sm sm:text-base">Choose songs to add to your playlist</p>
+                    
+                    <!-- Search Filter -->
+                    <div class="mb-4 sm:mb-6">
+                        <input type="text" id="songSearch" 
+                               class="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white bg-opacity-10 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="Filter songs...">
+                    </div>
+                    
+                    <!-- Song Selection List -->
+                    <div class="bg-[#181818] rounded-lg p-2 sm:p-4 max-h-[60vh] overflow-y-auto">
+                        <!-- Headers - Desktop -->
+                        <div class="hidden sm:grid grid-cols-[auto_4fr_3fr_2fr] gap-2 sm:gap-4 px-2 sm:px-4 py-2 text-xs sm:text-sm text-gray-400 border-b border-gray-700 mb-2">
+                            <div class="text-center">SELECT</div>
+                            <div>TITLE</div>
+                            <div>ARTIST</div>
+                            <div>ALBUM</div>
+                        </div>
+                        
+                        <!-- Headers - Mobile -->
+                        <div class="sm:hidden grid grid-cols-[auto_1fr] gap-2 px-2 py-2 text-xs text-gray-400 border-b border-gray-700 mb-2">
+                            <div class="text-center">SELECT</div>
+                            <div>SONG INFO</div>
+                        </div>
+
+                        <div id="songsList">
+                            {% for song in songs %}
+                            <!-- Desktop View -->
+                            <div class="song-item hidden sm:grid grid-cols-[auto_4fr_3fr_2fr] gap-2 sm:gap-4 px-2 sm:px-4 py-2 sm:py-3 hover:bg-[#282828] rounded-md transition-colors items-center">
+                                <div class="flex items-center justify-center">
+                                    <input type="checkbox" name="selected_songs" value="{{ song.id }}" 
+                                           class="w-4 h-4 sm:w-5 sm:h-5 accent-green-500 cursor-pointer">
+                                </div>
+                                <div class="flex items-center space-x-2 sm:space-x-4">
+                                    <img src="{{ song.image.url|default:'https://via.placeholder.com/40' }}" alt="{{ song.title }}" class="w-8 h-8 sm:w-10 sm:h-10">
+                                    <div class="text-white font-medium song-title">{{ song.title }}</div>
+                                </div>
+                                <div class="flex items-center text-gray-400 song-artist">
+                                    {{ song.artist }}
+                                </div>
+                                <div class="flex items-center text-gray-400">
+                                    {{ song.album }}
+                                </div>
+                            </div>
+                            
+                            <!-- Mobile View -->
+                            <div class="song-item sm:hidden grid grid-cols-[auto_1fr] gap-2 px-2 py-3 hover:bg-[#282828] rounded-md transition-colors items-center">
+                                <div class="flex items-center justify-center">
+                                    <input type="checkbox" name="selected_songs" value="{{ song.id }}" 
+                                           class="w-4 h-4 accent-green-500 cursor-pointer">
+                                </div>
+                                <div class="flex flex-col">
+                                    <div class="flex items-center space-x-2 mb-1">
+                                        <img src="{{ song.image.url|default:'https://via.placeholder.com/40' }}" alt="{{ song.title }}" class="w-8 h-8">
+                                        <div class="text-white font-medium song-title">{{ song.title }}</div>
+                                    </div>
+                                    <div class="text-xs text-gray-400 song-artist">
+                                        {{ song.artist }} • {{ song.album }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="text-center py-6 sm:py-8 text-gray-400">
+                                <p>No songs available</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+                    <div class="mb-2 sm:mb-0">
+                        <span id="selectedCount" class="text-white">0</span>
+                        <span class="text-gray-400">songs selected</span>
+                    </div>
+                    <div class="flex space-x-3 sm:space-x-4">
+                        <button type="button" onclick="history.back()" 
+                                class="px-4 sm:px-6 py-2 sm:py-3 border border-gray-500 text-white rounded-full hover:bg-white hover:bg-opacity-10 transition-colors text-sm sm:text-base">
+                            Cancel
+                        </button>
+                        <button type="submit" id="createButton"
+                                class="px-4 sm:px-6 py-2 sm:py-3 bg-green-500 text-white font-medium rounded-full hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-green-500 text-sm sm:text-base"
+                                disabled>
+                            Create Playlist
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Add to Existing Playlist Form (Initially Hidden) -->
+            <form id="addToExistingForm" method="POST" action="{% url 'add_song_to_playlist' %}" class="mb-8 hidden">
+                {% csrf_token %}
+                <div class="mb-6">
+                    <label for="existing_playlist" class="block text-white text-base sm:text-lg font-medium mb-2">Select Playlist</label>
+                    <select id="existing_playlist" name="playlist_id" required
+                            class="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white bg-opacity-10 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="" disabled selected>Choose a playlist</option>
+                        {% for playlist in playlists %}
+                            <option value="{{ playlist.id }}">{{ playlist.name }}</option>
+                        {% empty %}
+                            <option value="" disabled>No playlists available. Create one first.</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- The song selection is shared with the other form -->
+                
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+                    <div class="mb-2 sm:mb-0">
+                        <span id="selectedCountExisting" class="text-white">0</span>
+                        <span class="text-gray-400">songs selected</span>
+                    </div>
+                    <div class="flex space-x-3 sm:space-x-4">
+                        <button type="button" onclick="history.back()" 
+                                class="px-4 sm:px-6 py-2 sm:py-3 border border-gray-500 text-white rounded-full hover:bg-white hover:bg-opacity-10 transition-colors text-sm sm:text-base">
+                            Cancel
+                        </button>
+                        <button type="submit" id="addToPlaylistButton"
+                                class="px-4 sm:px-6 py-2 sm:py-3 bg-green-500 text-white font-medium rounded-full hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-green-500 text-sm sm:text-base"
+                                disabled>
+                            Add to Playlist
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const songSearch = document.getElementById('songSearch');
+        const mobileItems = document.querySelectorAll('.song-item.sm\\:hidden');
+        const desktopItems = document.querySelectorAll('.song-item.hidden.sm\\:grid');
+        const checkboxes = document.querySelectorAll('input[name="selected_songs"]');
+        const selectedCount = document.getElementById('selectedCount');
+        const selectedCountExisting = document.getElementById('selectedCountExisting');
+        const createButton = document.getElementById('createButton');
+        const addToPlaylistButton = document.getElementById('addToPlaylistButton');
+        
+        // Form toggle functionality
+        const newPlaylistBtn = document.getElementById('newPlaylistBtn');
+        const addToExistingBtn = document.getElementById('addToExistingBtn');
+        const createPlaylistForm = document.getElementById('createPlaylistForm');
+        const addToExistingForm = document.getElementById('addToExistingForm');
+        
+        newPlaylistBtn.addEventListener('click', function() {
+            newPlaylistBtn.classList.remove('bg-gray-700');
+            newPlaylistBtn.classList.add('bg-green-500');
+            addToExistingBtn.classList.remove('bg-green-500');
+            addToExistingBtn.classList.add('bg-gray-700');
+            
+            createPlaylistForm.classList.remove('hidden');
+            addToExistingForm.classList.add('hidden');
+        });
+        
+        addToExistingBtn.addEventListener('click', function() {
+            addToExistingBtn.classList.remove('bg-gray-700');
+            addToExistingBtn.classList.add('bg-green-500');
+            newPlaylistBtn.classList.remove('bg-green-500');
+            newPlaylistBtn.classList.add('bg-gray-700');
+            
+            addToExistingForm.classList.remove('hidden');
+            createPlaylistForm.classList.add('hidden');
+        });
+        
+        // Ensure checkboxes are synced between mobile and desktop views
+        function syncCheckboxes() {
+            checkboxes.forEach((checkbox, index) => {
+                if (index % 2 === 0) {
+                    // Sync with the next checkbox (odd index)
+                    checkboxes[index + 1].checked = checkbox.checked;
+                } else {
+                    // Sync with the previous checkbox (even index)
+                    checkboxes[index - 1].checked = checkbox.checked;
+                }
+            });
+        }
+        
+        // Filter songs based on search input
+        songSearch.addEventListener('input', function() {
+            const searchText = this.value.toLowerCase();
+            
+            // Filter mobile items
+            mobileItems.forEach((item, index) => {
+                const title = item.querySelector('.song-title').textContent.toLowerCase();
+                const artist = item.querySelector('.song-artist').textContent.toLowerCase();
+                const isVisible = title.includes(searchText) || artist.includes(searchText);
+                item.style.display = isVisible ? '' : 'none';
+                
+                // Also hide/show the corresponding desktop item
+                desktopItems[index].style.display = isVisible ? '' : 'none';
+            });
+        });
+        
+        // Update selected count and enable/disable create button
+        function updateSelectedCount() {
+            // Only count selections from either mobile or desktop view to avoid duplicates
+            const uniqueSelections = new Set();
+            
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    uniqueSelections.add(checkbox.value);
+                }
+            });
+            
+            const count = uniqueSelections.size;
+            selectedCount.textContent = count;
+            selectedCountExisting.textContent = count;
+            
+            createButton.disabled = count === 0;
+            addToPlaylistButton.disabled = count === 0 || document.getElementById('existing_playlist').value === "";
+        }
+        
+        // Add event listeners to all checkboxes
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                syncCheckboxes();
+                updateSelectedCount();
+            });
+        });
+        
+        // Add event listener to the playlist dropdown
+        document.getElementById('existing_playlist').addEventListener('change', updateSelectedCount);
+        
+        // Initialize the form
+        updateSelectedCount();
+        
+        // Handle form submission for new playlist
+        document.getElementById('createPlaylistForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const playlistName = document.getElementById('playlist_name').value;
+            
+            // Get unique selected song IDs
+            const uniqueSelections = new Set();
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    uniqueSelections.add(checkbox.value);
+                }
+            });
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('playlist_name', playlistName);
+            
+            // Add each unique song ID
+            uniqueSelections.forEach(songId => {
+                formData.append('selected_songs', songId);
+            });
+            
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+            
+            // Submit the form
+            fetch('{% url "create_playlist" %}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = '{% url "user_playlists" %}';
+                } else if (response.redirected) {
+                    window.location.href = response.url;
+                } else {
+                    return response.text();
+                }
+            })
+            .then(htmlResponse => {
+                if (htmlResponse) {
+                    // If we got HTML back, the form submission had an error
+                    // Display the error message or refresh the page to show the server-rendered error
+                    document.open();
+                    document.write(htmlResponse);
+                    document.close();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to create playlist. Please try again.');
+            });
+        });
+        
+        // Handle form submission for adding to existing playlist
+        document.getElementById('addToExistingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const playlistId = document.getElementById('existing_playlist').value;
+            
+            // Get unique selected song IDs
+            const uniqueSelections = new Set();
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    uniqueSelections.add(checkbox.value);
+                }
+            });
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('playlist_id', playlistId);
+            
+            // Add each unique song ID
+            uniqueSelections.forEach(songId => {
+                formData.append('selected_songs', songId);
+            });
+            
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+            
+            // Submit the form
+            fetch('{% url "add_song_to_playlist" %}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok || response.redirected) {
+                    window.location.href = '{% url "user_playlists" %}';
+                } else {
+                    return response.text();
+                }
+            })
+            .then(htmlResponse => {
+                if (htmlResponse) {
+                    // If we got HTML back, the form submission had an error
+                    document.open();
+                    document.write(htmlResponse);
+                    document.close();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to add songs to playlist. Please try again.');
+            });
+        });
+    });
+</script>
+{% endblock %}
+
+{% block audio %}
+<!-- No audio player in this view -->
+{% endblock %} 

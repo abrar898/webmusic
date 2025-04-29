@@ -1,0 +1,430 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Artist Detail Page -->
+<div class="min-h-screen">
+    <!-- Top Bar -->
+    <div class="top-bar sticky top-0 z-40 px-4 md:px-8 py-4 flex items-center justify-between bg-[#121212] bg-opacity-90">
+        <div class="flex items-center space-x-2 md:space-x-4">
+            <a href="{% url 'song_list' %}" class="bg-black bg-opacity-50 rounded-full p-1 md:block">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </a>
+            <div class="text-white text-xl md:text-2xl font-bold">{{ artist.name }}</div>
+        </div>
+
+        <!-- User Menu -->
+        <div class="relative">
+            <button onclick="toggleProfile()" class="flex items-center space-x-1 md:space-x-2 hover:bg-[#282828] rounded-full p-1">
+                <img src="https://via.placeholder.com/40" alt="Profile" class="w-6 h-6 md:w-8 md:h-8 rounded-full">
+                <span class="font-medium text-sm md:text-base hidden md:inline">{{ request.user.username }}</span>
+                <svg class="w-3 h-3 md:w-4 md:h-4 hidden md:block" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+            </button>
+            <div id="profileMenu" class="absolute right-0 mt-2 w-48 bg-[#282828] rounded-md shadow-lg hidden z-50">
+                <a href="#" class="block px-4 py-2 text-sm hover:bg-[#3e3e3e]">Profile</a>
+                <a href="#" class="block px-4 py-2 text-sm hover:bg-[#3e3e3e]">Settings</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Artist Header -->
+    <div class="relative">
+        <div class="w-full h-64 md:h-80 bg-gradient-to-b from-purple-700 to-[#121212]"></div>
+        <div class="absolute bottom-0 left-0 w-full px-4 md:px-8 pb-4 md:pb-6 flex items-end">
+            <div class="flex items-center">
+                <div class="w-36 h-36 md:w-48 md:h-48 rounded-full overflow-hidden border-4 border-[#121212] mr-4 md:mr-6">
+                    <img src="{{ artist.image.url|default:'https://via.placeholder.com/400' }}" alt="{{ artist.name }}" class="w-full h-full object-cover">
+                </div>
+                <div>
+                    <div class="text-sm uppercase text-gray-300 font-bold">Artist</div>
+                    <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold text-white">{{ artist.name }}</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="px-4 md:px-8 py-4 md:py-6 pb-24">
+        <!-- Artist Bio -->
+        {% if artist.bio %}
+        <section class="mb-8">
+            <h2 class="text-xl md:text-2xl font-bold mb-4">About</h2>
+            <p class="text-gray-300">{{ artist.bio }}</p>
+        </section>
+        {% endif %}
+
+        <!-- Albums Section -->
+        <section class="mb-8">
+            <h2 class="text-xl md:text-2xl font-bold mb-4">Albums</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+                {% for album in albums %}
+                <div class="bg-[#181818] rounded-lg p-3 md:p-4 hover:bg-[#282828] transition-colors card-hover-effect">
+                    <div class="relative mb-3 md:mb-4">
+                        <img src="{{ album.cover_image.url|default:'https://via.placeholder.com/300' }}" 
+                             alt="{{ album.name }}" 
+                             class="w-full aspect-square object-cover rounded-md shadow-lg">
+                        <div class="absolute bottom-2 right-2">
+                            <div class="w-10 h-10 md:w-12 md:h-12 bg-green-500 rounded-full shadow-xl flex items-center justify-center play-button hover:scale-105 transition-all duration-300">
+                                <svg class="w-5 h-5 md:w-6 md:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="text-sm md:text-base font-semibold text-white truncate">{{ album.name }}</h3>
+                    <p class="text-xs md:text-sm text-gray-400 truncate">{{ album.release_date|date:"Y" }}</p>
+                </div>
+                {% empty %}
+                <div class="col-span-full text-center py-8 text-gray-400">
+                    <p>No albums available</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Popular Songs -->
+        <section class="mb-8">
+            <h2 class="text-xl md:text-2xl font-bold mb-4">Popular Songs</h2>
+            <div class="bg-[#121212] rounded-lg overflow-hidden">
+                <!-- Headers -->
+                <div class="grid grid-cols-[16px_4fr_2fr] md:grid-cols-[16px_4fr_3fr_2fr] gap-2 md:gap-4 px-2 md:px-4 py-2 text-xs md:text-sm text-gray-400 border-b border-gray-700">
+                    <div class="text-center">#</div>
+                    <div>TITLE</div>
+                    <div class="hidden md:block">ALBUM</div>
+                    <div>DURATION</div>
+                </div>
+
+                <!-- Songs -->
+                {% for song in songs %}
+                <div class="grid grid-cols-[16px_4fr_2fr] md:grid-cols-[16px_4fr_3fr_2fr] gap-2 md:gap-4 px-2 md:px-4 py-2 group hover:bg-[#282828] rounded-md transition-colors song-row" 
+                     data-song-id="{{ song.id }}" 
+                     data-song-url="{{ song.audio_file.url }}" 
+                     data-song-title="{{ song.title }}" 
+                     data-song-artist="{{ artist.name }}">
+                    <div class="flex items-center justify-center text-gray-400 group-hover:text-white">
+                        <span class="group-hover:hidden">{{ forloop.counter }}</span>
+                        <button class="hidden group-hover:block" onclick="playSong('{{ song.id }}', '{{ song.audio_file.url }}', '{{ song.title }}', '{{ artist.name }}')">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-2 md:space-x-4 min-w-0">
+                        <img src="{{ song.image.url|default:'https://via.placeholder.com/40' }}" alt="{{ song.title }}" class="w-8 h-8 md:w-10 md:h-10 flex-shrink-0">
+                        <div class="truncate min-w-0">
+                            <div class="text-white text-sm md:text-base font-medium truncate">{{ song.title }}</div>
+                        </div>
+                        <audio id="music-{{ song.id }}" src="{{ song.audio_file.url }}" preload="metadata"></audio>
+                    </div>
+                    <div class="hidden md:flex items-center text-gray-400 truncate">
+                        {{ song.album.name|default:"-" }}
+                    </div>
+                    <div class="flex items-center text-gray-400 text-sm">
+                        <span id="duration-{{ song.id }}">-:--</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-8 text-gray-400">
+                    <p>No songs available</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</div>
+
+<style>
+    /* Additional styles for cards */
+    div.bg-\[\#181818\]:hover button.opacity-0,
+    div.bg-\[\#181818\]:hover div.opacity-0 {
+        opacity: 1;
+    }
+    
+    .card-hover-effect:hover .play-button {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .card-hover-effect .play-button {
+        opacity: 0;
+        transform: translateY(8px);
+        transition: all 0.3s ease;
+    }
+    
+    /* Make play buttons visible on touch devices */
+    @media (hover: none) {
+        .play-button {
+            opacity: 0.8;
+            transform: translateY(0);
+        }
+        
+        .group:hover .hidden {
+            display: flex !important;
+        }
+        
+        .group:hover .group-hover\:hidden {
+            display: none !important;
+        }
+    }
+    
+    /* Fix for player bar overlap */
+    .main-content {
+        padding-bottom: 4rem;
+    }
+    
+    /* Improve text truncation on small screens */
+    @media (max-width: 640px) {
+        .truncate {
+            max-width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block audio %}
+<!-- Audio Player -->
+<div class="fixed bottom-0 left-0 right-0 h-20 bg-[#181818] border-t border-[#282828] px-4 flex items-center justify-between">
+    <div class="flex items-center space-x-4">
+        <img id="current-song-image" src="https://via.placeholder.com/56" alt="Now Playing" class="w-14 h-14 rounded">
+        <div>
+            <h4 id="current-song-title" class="font-medium text-white">Select a song</h4>
+            <p id="current-song-artist" class="text-sm text-gray-400">-</p>
+        </div>
+    </div>
+
+    <div class="flex flex-col items-center justify-center flex-1 max-w-2xl">
+        <div class="flex items-center space-x-4 mb-2">
+            <button class="text-gray-400 hover:text-white" onclick="previousSong()">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                </svg>
+            </button>
+            <button id="play-pause-btn" class="w-8 h-8 bg-white rounded-full flex items-center justify-center hover:scale-105 transition-transform" onclick="togglePlay()">
+                <svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+            </button>
+            <button class="text-gray-400 hover:text-white" onclick="nextSong()">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 18V6l8.5 6z"/>
+                </svg>
+            </button>
+        </div>
+        <div class="w-full flex items-center space-x-2">
+            <span id="current-time" class="text-xs text-gray-400">0:00</span>
+            <div class="flex-1 h-1 bg-gray-600 rounded-full">
+                <div id="progress-bar" class="h-full bg-white rounded-full" style="width: 0%"></div>
+            </div>
+            <span id="duration" class="text-xs text-gray-400">0:00</span>
+        </div>
+    </div>
+
+    <div class="flex items-center space-x-4">
+        <button class="text-gray-400 hover:text-white">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+            </svg>
+        </button>
+    </div>
+</div>
+
+<script>
+let currentAudio = null;
+let currentSongId = null;
+let songElements = [];
+let currentIndex = -1;
+
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    seconds = Math.floor(seconds % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function updateProgressBar() {
+    if (currentAudio) {
+        const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
+        document.getElementById('progress-bar').style.width = `${progress}%`;
+        document.getElementById('current-time').textContent = formatTime(currentAudio.currentTime);
+        document.getElementById('duration').textContent = formatTime(currentAudio.duration);
+    }
+}
+
+// Initialize the song elements array when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const songRows = document.querySelectorAll('.song-row');
+    
+    songRows.forEach((row, index) => {
+        const songId = row.dataset.songId;
+        const audioElement = document.getElementById(`music-${songId}`);
+        const songUrl = row.dataset.songUrl;
+        const songTitle = row.dataset.songTitle;
+        const songArtist = row.dataset.songArtist;
+        const songImage = row.querySelector('img') ? row.querySelector('img').src : 'https://via.placeholder.com/56';
+        
+        songElements.push({
+            id: songId,
+            audio: audioElement,
+            url: songUrl,
+            title: songTitle,
+            artist: songArtist,
+            image: songImage,
+            index: index
+        });
+    });
+    
+    console.log(`Total songs loaded: ${songElements.length}`);
+});
+
+function playSong(songId, audioUrl, title, artist) {
+    console.log(`Playing song: ${title} by ${artist}`);
+    
+    if (currentAudio) {
+        currentAudio.pause();
+        if (currentSongId === songId) {
+            togglePlay();
+            return;
+        }
+    }
+
+    const audio = document.getElementById(`music-${songId}`);
+    currentAudio = audio;
+    currentSongId = songId;
+    
+    // Find current song index
+    currentIndex = songElements.findIndex(song => song.id === songId);
+    console.log(`Current song index: ${currentIndex}`);
+
+    // Update player UI
+    document.getElementById('current-song-title').textContent = title;
+    document.getElementById('current-song-artist').textContent = artist;
+    
+    // Find the image element
+    try {
+        const songRow = document.querySelector(`.song-row[data-song-id="${songId}"]`);
+        if (songRow) {
+            const imgElement = songRow.querySelector('img');
+            if (imgElement) {
+                document.getElementById('current-song-image').src = imgElement.src;
+            }
+        }
+    } catch (e) {
+        console.error("Error updating image:", e);
+    }
+
+    audio.play();
+    updatePlayPauseButton();
+
+    audio.addEventListener('timeupdate', updateProgressBar);
+    
+    // Highlight current playing song
+    document.querySelectorAll('.song-row').forEach(row => {
+        row.classList.remove('bg-[#282828]');
+        row.classList.add('bg-[#121212]');
+    });
+    
+    const currentRow = document.querySelector(`.song-row[data-song-id="${songId}"]`);
+    if (currentRow) {
+        currentRow.classList.remove('bg-[#121212]');
+        currentRow.classList.add('bg-[#282828]');
+    }
+}
+
+function togglePlay() {
+    if (!currentAudio) return;
+    
+    if (currentAudio.paused) {
+        currentAudio.play();
+    } else {
+        currentAudio.pause();
+    }
+    updatePlayPauseButton();
+}
+
+function updatePlayPauseButton() {
+    const button = document.getElementById('play-pause-btn');
+    if (!currentAudio || currentAudio.paused) {
+        button.innerHTML = '<svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+    } else {
+        button.innerHTML = '<svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+    }
+}
+
+function nextSong() {
+    console.log("Next song called");
+    if (songElements.length === 0) {
+        console.log("No songs loaded");
+        return;
+    }
+    
+    // If no current song, play the first song
+    if (currentIndex === -1) {
+        if (songElements.length > 0) {
+            const firstSong = songElements[0];
+            playSong(firstSong.id, firstSong.url, firstSong.title, firstSong.artist);
+        }
+        return;
+    }
+    
+    // If current song is not the last song
+    if (currentIndex < songElements.length - 1) {
+        const nextSong = songElements[currentIndex + 1];
+        console.log(`Playing next song: ${nextSong.title}`);
+        playSong(nextSong.id, nextSong.url, nextSong.title, nextSong.artist);
+    } else {
+        // If it's the last song, loop back to the first song
+        const firstSong = songElements[0];
+        console.log(`Looping back to first song: ${firstSong.title}`);
+        playSong(firstSong.id, firstSong.url, firstSong.title, firstSong.artist);
+    }
+}
+
+function previousSong() {
+    console.log("Previous song called");
+    if (songElements.length === 0) {
+        console.log("No songs loaded");
+        return;
+    }
+    
+    // If no current song or at the beginning of the current song, play the previous song
+    if (currentIndex === -1 || (currentAudio && currentAudio.currentTime < 3)) {
+        // If current song is not the first song
+        if (currentIndex > 0) {
+            const prevSong = songElements[currentIndex - 1];
+            console.log(`Playing previous song: ${prevSong.title}`);
+            playSong(prevSong.id, prevSong.url, prevSong.title, prevSong.artist);
+        } else {
+            // If it's the first song, loop back to the last song
+            const lastSong = songElements[songElements.length - 1];
+            console.log(`Looping to last song: ${lastSong.title}`);
+            playSong(lastSong.id, lastSong.url, lastSong.title, lastSong.artist);
+        }
+    } else {
+        // If in the middle of a song, restart it
+        currentAudio.currentTime = 0;
+    }
+}
+
+// Toggle profile menu
+function toggleProfile() {
+    const menu = document.getElementById('profileMenu');
+    menu.classList.toggle('hidden');
+}
+
+// Load song durations
+document.addEventListener('DOMContentLoaded', function() {
+    const audioElements = document.querySelectorAll('audio');
+    audioElements.forEach(audio => {
+        audio.addEventListener('loadedmetadata', function() {
+            const songId = this.id.split('-')[1];
+            const durationElement = document.getElementById(`duration-${songId}`);
+            if (durationElement) {
+                durationElement.textContent = formatTime(this.duration);
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

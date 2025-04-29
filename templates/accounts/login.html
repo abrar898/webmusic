@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Log In{% endblock %}
+
+{% block extrahead %}
+<style>
+    .login-background {
+        background-image: url('{% static "img/login-bg.jpg" %}');
+        background-size: cover;
+        background-position: center;
+    }
+    
+    /* Override any background color inheritance */
+    input, select, textarea {
+        background-color: #1e3a8a !important; /* dark blue */
+        border-color: #3b82f6 !important;
+        height: 50px !important;
+        font-size: 16px !important;
+    }
+    
+    /* Add more spacing between form elements */
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    /* Make form elements more prominent */
+    .form-label {
+        font-size: 16px;
+        margin-bottom: 8px;
+        display: block;
+        color: #f3f4f6;
+    }
+    
+    /* Login button styling */
+    .login-btn {
+        height: 54px;
+        font-size: 18px;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center p-4 login-background">
+    <div class="w-full max-w-md bg-black bg-opacity-80 p-8 rounded-lg">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-2">Sign In</h1>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="bg-red-500 bg-opacity-10 border border-red-500 text-red-500 px-4 py-3 rounded mb-4">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}" class="form-label">Username or Email</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.username.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
+                {{ form.password }}
+                {% if form.password.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.password.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <button type="submit" 
+                        class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-4 rounded transition duration-200 login-btn">
+                    Sign In
+                </button>
+            </div>
+        </form>
+
+        <div class="mt-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <input type="checkbox" id="remember-me" class="h-4 w-4 bg-blue-900 border-blue-700 rounded">
+                    <label for="remember-me" class="ml-2 block text-sm text-gray-400">
+                        Remember me
+                    </label>
+                </div>
+                <div class="text-sm">
+                    <a href="#" class="text-gray-400 hover:text-white">
+                        Need help?
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 text-gray-400">
+            <p>New to Naya Studio? <a href="{% url 'signup' %}" class="text-white hover:underline">Sign up now</a>.</p>
+            <p class="mt-4 text-xs">
+                This page is protected by Google reCAPTCHA to ensure you're not a bot. 
+                <a href="#" class="text-blue-500 hover:underline">Learn more</a>.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,325 @@
+{% extends 'song_list.html' %}
+{% block content %}
+<div class="main-content bg-[#121212] min-h-screen">
+    <div class="px-8 py-6">
+        {% if request.GET.search %}
+        <h2 class="text-2xl font-bold mb-4 text-white">Search Results for "{{ request.GET.search }}"</h2>
+        {% if songs %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for song in songs %}
+            <div class="bg-[#181818] hover:bg-[#282828] transition-colors p-5 rounded-lg group relative home-song-item"
+                 data-song-id="{{ song.id }}"
+                 data-song-url="{{ song.audio_file.url }}"
+                 data-song-title="{{ song.title }}"
+                 data-song-artist="{{ song.artist }}">
+                <!-- Song Image -->
+                <div class="relative">
+                    <img src="{{ song.image.url|default:'https://via.placeholder.com/150' }}" 
+                         alt="{{ song.title }}" 
+                         class="w-full h-40 object-cover rounded-md shadow-lg mb-4">
+                    <!-- Play Button -->
+                    <button class="homepage-play-btn absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white text-lg rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                            data-song-id="{{ song.id }}"
+                            data-song-url="{{ song.audio_file.url }}"
+                            data-song-title="{{ song.title }}"
+                            data-song-artist="{{ song.artist }}">
+                        ▶ Play
+                    </button>
+                </div>
+
+                <!-- Song Details -->
+                <h3 class="text-xl font-bold text-white">{{ song.title }}</h3>
+                <p class="text-sm text-gray-400">{{ song.artist }}</p>
+                <audio id="home-audio-{{ song.id }}" src="{{ song.audio_file.url }}"></audio>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-400">No results found for "{{ request.GET.search }}". Try another search term.</p>
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+{%endblock%}
+{% block audio %}
+    <!-- Audio Player -->
+    <div id="homepage-player" class="fixed bottom-0 left-0 right-0 bg-[#181818] border-t border-[#282828] p-4 z-50">
+        <div class="flex justify-between items-center ">
+            <div class="flex items-center space-x-4">
+                <img id="home-current-image" src="https://via.placeholder.com/56" alt="Now Playing" class="w-14 h-14 rounded">
+                <div>
+                    <h4 id="home-current-title" class="text-white font-medium">Select a song</h4>
+                    <p id="home-current-artist" class="text-sm text-gray-400">-</p>
+                </div>
+            </div>
+            
+            <div class="flex flex-col items-center justify-center flex-1 max-w-2xl">
+                <div class="flex items-center space-x-4 mb-2">
+                    <button id="home-prev-btn" class="text-gray-400 hover:text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                        </svg>
+                    </button>
+                    <button id="home-play-pause-btn" class="w-8 h-8 bg-white rounded-full flex items-center justify-center hover:scale-105 transition-transform">
+                        <svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </button>
+                    <button id="home-next-btn" class="text-gray-400 hover:text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6 18V6l8.5 6z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="w-full flex items-center space-x-2">
+                    <span id="home-current-time" class="text-xs text-gray-400">0:00</span>
+                    <div class="flex-1 h-1 bg-gray-600 rounded-full">
+                        <div id="home-progress-bar" class="h-full bg-white rounded-full" style="width: 0%"></div>
+                    </div>
+                    <span id="home-duration" class="text-xs text-gray-400">0:00</span>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <button class="text-gray-400 hover:text-white">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+<script>
+// Homepage audio player - completely isolated from parent template
+(function() {
+    // Internal variables - prefixed with home_ to avoid conflicts
+    let home_currentAudio = null;
+    let home_currentSongId = null;
+    let home_songList = [];
+    let home_currentIndex = -1;
+
+    // Format time for display (0:00)
+    function home_formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        seconds = Math.floor(seconds % 60);
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    // Update progress bar as song plays
+    function home_updateProgress() {
+        if (home_currentAudio) {
+            const progress = (home_currentAudio.currentTime / home_currentAudio.duration) * 100;
+            document.getElementById('home-progress-bar').style.width = `${progress}%`;
+            document.getElementById('home-current-time').textContent = home_formatTime(home_currentAudio.currentTime);
+            document.getElementById('home-duration').textContent = home_formatTime(home_currentAudio.duration || 0);
+        }
+    }
+
+    // Update the play/pause button to show current state
+    function home_updatePlayPauseButton() {
+        const button = document.getElementById('home-play-pause-btn');
+        if (!home_currentAudio || home_currentAudio.paused) {
+            button.innerHTML = '<svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+        } else {
+            button.innerHTML = '<svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+        }
+    }
+
+    // Play a song
+    function home_playSong(songId) {
+        console.log(`[Homepage] Playing song ID: ${songId}`);
+        
+        // Find song data
+        const songData = home_songList.find(song => song.id === songId);
+        if (!songData) {
+            console.error(`[Homepage] Song ID ${songId} not found in song list`);
+            return;
+        }
+        
+        // Stop current audio if playing
+        if (home_currentAudio) {
+            home_currentAudio.pause();
+            // If clicking on the same song, toggle play/pause
+            if (home_currentSongId === songId) {
+                if (home_currentAudio.paused) {
+                    home_currentAudio.play();
+                    home_updatePlayPauseButton();
+                }
+                return;
+            }
+        }
+        
+        // Set up new audio
+        const audioElement = document.getElementById(`home-audio-${songId}`);
+        if (!audioElement) {
+            console.error(`[Homepage] Audio element for song ID ${songId} not found`);
+            return;
+        }
+        
+        // Update current tracking variables
+        home_currentAudio = audioElement;
+        home_currentSongId = songId;
+        home_currentIndex = home_songList.findIndex(song => song.id === songId);
+        
+        console.log(`[Homepage] Current song index: ${home_currentIndex} of ${home_songList.length-1}`);
+        
+        // Update player UI
+        document.getElementById('home-current-title').textContent = songData.title;
+        document.getElementById('home-current-artist').textContent = songData.artist;
+        document.getElementById('home-current-image').src = songData.image;
+        
+        // Play the song
+        home_currentAudio.currentTime = 0;
+        home_currentAudio.play();
+        
+        // Set up event listeners
+        home_currentAudio.removeEventListener('timeupdate', home_updateProgress);
+        home_currentAudio.addEventListener('timeupdate', home_updateProgress);
+        
+        home_currentAudio.removeEventListener('ended', home_playNext);
+        home_currentAudio.addEventListener('ended', home_playNext);
+        
+        // Update button state
+        home_updatePlayPauseButton();
+    }
+    
+    // Toggle play/pause
+    function home_togglePlay() {
+        if (!home_currentAudio) {
+            if (home_songList.length > 0) {
+                home_playSong(home_songList[0].id);
+            }
+            return;
+        }
+        
+        if (home_currentAudio.paused) {
+            home_currentAudio.play();
+        } else {
+            home_currentAudio.pause();
+        }
+        
+        home_updatePlayPauseButton();
+    }
+    
+    // Play next song
+    function home_playNext() {
+        console.log(`[Homepage] Next song requested, current index: ${home_currentIndex}`);
+        
+        if (home_songList.length === 0) {
+            console.log("[Homepage] No songs available");
+            return;
+        }
+        
+        // If no current song, play the first song
+        if (home_currentIndex === -1) {
+            if (home_songList.length > 0) {
+                home_playSong(home_songList[0].id);
+            }
+            return;
+        }
+        
+        // If current song is not the last song
+        if (home_currentIndex < home_songList.length - 1) {
+            const nextSong = home_songList[home_currentIndex + 1];
+            console.log(`[Homepage] Playing next song: ${nextSong.title}`);
+            home_playSong(nextSong.id);
+        } else {
+            // If it's the last song, loop back to the first song
+            const firstSong = home_songList[0];
+            console.log(`[Homepage] Looping back to first song: ${firstSong.title}`);
+            home_playSong(firstSong.id);
+        }
+    }
+    
+    // Play previous song
+    function home_playPrevious() {
+        console.log(`[Homepage] Previous song requested, current index: ${home_currentIndex}`);
+        
+        if (home_songList.length === 0) {
+            console.log("[Homepage] No songs available");
+            return;
+        }
+        
+        // If no current song or at the beginning of the current song, play the previous song
+        if (home_currentIndex === -1 || (home_currentAudio && home_currentAudio.currentTime < 3)) {
+            // If current song is not the first song
+            if (home_currentIndex > 0) {
+                const prevSong = home_songList[home_currentIndex - 1];
+                console.log(`[Homepage] Playing previous song: ${prevSong.title}`);
+                home_playSong(prevSong.id);
+            } else {
+                // If it's the first song, loop back to the last song
+                const lastSong = home_songList[home_songList.length - 1];
+                console.log(`[Homepage] Looping to last song: ${lastSong.title}`);
+                home_playSong(lastSong.id);
+            }
+        } else {
+            // If in the middle of a song, restart it
+            console.log("[Homepage] Restarting current song");
+            home_currentAudio.currentTime = 0;
+        }
+    }
+    
+    // Initialize when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("[Homepage] Initializing homepage audio player");
+        
+        // Find all song items
+        const songItems = document.querySelectorAll('.home-song-item');
+        console.log(`[Homepage] Found ${songItems.length} song items`);
+        
+        // Clear song list
+        home_songList = [];
+        
+        // Build song list
+        songItems.forEach((item, index) => {
+            const songId = item.dataset.songId;
+            const songUrl = item.dataset.songUrl;
+            const songTitle = item.dataset.songTitle;
+            const songArtist = item.dataset.songArtist;
+            const songImage = item.querySelector('img').src;
+            
+            home_songList.push({
+                id: songId,
+                url: songUrl,
+                title: songTitle,
+                artist: songArtist,
+                image: songImage,
+                index: index
+            });
+            
+            console.log(`[Homepage] Added song: ${songTitle} by ${songArtist} at index ${index}`);
+        });
+        
+        // Set up play buttons
+        const playButtons = document.querySelectorAll('.homepage-play-btn');
+        playButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const songId = this.dataset.songId;
+                console.log(`[Homepage] Play button clicked for song ID: ${songId}`);
+                home_playSong(songId);
+            });
+        });
+        
+        // Set up control buttons
+        document.getElementById('home-play-pause-btn').addEventListener('click', function() {
+            console.log("[Homepage] Play/pause button clicked");
+            home_togglePlay();
+        });
+        
+        document.getElementById('home-next-btn').addEventListener('click', function() {
+            console.log("[Homepage] Next button clicked");
+            home_playNext();
+        });
+        
+        document.getElementById('home-prev-btn').addEventListener('click', function() {
+            console.log("[Homepage] Previous button clicked");
+            home_playPrevious();
+        });
+        
+        console.log("[Homepage] Audio player initialized");
+    });
+})();
+</script>
+{% endblock %}

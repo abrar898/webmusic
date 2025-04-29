@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-b from-[#1e1e1e] to-[#121212] pb-24">
+    <!-- Main Search Section -->
+    <div class="px-4 md:px-8 pt-4 md:pt-8 pb-8">
+        <h1 class="text-2xl md:text-3xl font-bold mb-6">Search</h1>
+        
+        <form method="get" action="{% url 'search_songs' %}" class="mb-8">
+            <div class="relative">
+                <input type="text" name="q" 
+                    value="{{ query }}" 
+                    placeholder="What do you want to listen to?" 
+                    class="w-full bg-[#2a2a2a] border-none rounded-full py-3 px-12 text-sm md:text-base text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white"
+                    autofocus>
+                <div class="absolute left-4 top-1/2 transform -translate-y-1/2">
+                    <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                {% if query %}
+                <button type="button" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white" onclick="clearSearch()">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+                {% endif %}
+            </div>
+        </form>
+
+        {% if query %}
+            <!-- Search Results -->
+            <div class="space-y-8">
+                <!-- Songs Results -->
+                {% if songs %}
+                <section>
+                    <h2 class="text-xl font-bold mb-4">Songs</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        {% for song in songs %}
+                        <div class="bg-[#181818] hover:bg-[#282828] p-4 rounded-md transition-colors duration-300 group relative">
+                            <div class="flex items-center space-x-4">
+                                <div class="relative min-w-[60px] w-15 h-15">
+                                    <img src="{{ song.image.url }}" alt="{{ song.title }}" class="w-full h-full object-cover rounded-md">
+                                    <button 
+                                        class="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-300 right-2 bottom-2 bg-[#1DB954] rounded-full p-2 shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform"
+                                        onclick="playSong('{{ song.id }}', '{{ song.audio_file.url }}', '{{ song.title }}', '{{ song.artist }}')">
+                                        <svg class="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M8 5v14l11-7z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <h3 class="font-semibold text-white truncate">{{ song.title }}</h3>
+                                    <p class="text-sm text-gray-400 truncate">{{ song.artist }}</p>
+                                </div>
+                            </div>
+                            <audio id="music-{{ song.id }}" preload="none">
+                                <source src="{{ song.audio_file.url }}" type="audio/mpeg">
+                            </audio>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+
+                <!-- Artists -->
+                {% if artists %}
+                <section>
+                    <h2 class="text-xl font-bold mb-4">Artists</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                        {% for artist in artists %}
+                        <div class="bg-[#181818] hover:bg-[#282828] p-4 rounded-md transition-colors duration-300 flex flex-col items-center text-center">
+                            <div class="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden mb-4">
+                                <img src="{{ artist.image.url }}" alt="{{ artist }}" class="w-full h-full object-cover">
+                            </div>
+                            <h3 class="font-semibold text-white">{{ artist }}</h3>
+                            <p class="text-sm text-gray-400">Artist</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+
+                <!-- Playlists -->
+                {% if playlists %}
+                <section>
+                    <h2 class="text-xl font-bold mb-4">Playlists</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                        {% for playlist in playlists %}
+                        <a href="{% url 'playlist_detail' playlist.id %}" class="bg-[#181818] hover:bg-[#282828] p-4 rounded-md transition-colors duration-300">
+                            <div class="w-full aspect-square rounded-md overflow-hidden mb-4">
+                                <img src="{{ playlist.cover_image.url }}" alt="{{ playlist.name }}" class="w-full h-full object-cover">
+                            </div>
+                            <h3 class="font-semibold text-white truncate">{{ playlist.name }}</h3>
+                            <p class="text-sm text-gray-400 truncate">By {{ playlist.user }}</p>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+
+                {% if not songs and not artists and not playlists %}
+                <div class="text-center py-12">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                    </svg>
+                    <h2 class="text-2xl font-bold text-white mb-2">No results found for "{{ query }}"</h2>
+                    <p class="text-gray-400">Please try another search.</p>
+                </div>
+                {% endif %}
+            </div>
+        {% else %}
+            <!-- Browse Categories when no search -->
+            <div class="space-y-8">
+                <section>
+                    <h2 class="text-xl font-bold mb-4">Browse Categories</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        {% for genre in genres %}
+                        <a href="{% url 'genre_detail' genre.id %}" class="relative overflow-hidden rounded-lg aspect-square group">
+                            <div class="absolute inset-0 bg-gradient-to-br from-purple-600 to-blue-500 opacity-80 group-hover:opacity-90 transition-opacity"></div>
+                            <div class="absolute inset-0 flex items-center justify-center p-4">
+                                <h3 class="text-white font-bold text-lg md:text-xl text-center">{{ genre.name }}</h3>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </section>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function clearSearch() {
+        window.location.href = "{% url 'search_songs' %}";
+    }
+
+    // For media that don't support hover
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.matchMedia('(hover: none)').matches) {
+            // For touch screens, make play buttons visible
+            const playButtons = document.querySelectorAll('.group button.opacity-0');
+            playButtons.forEach(button => {
+                button.classList.remove('opacity-0', 'group-hover:opacity-100', 'translate-y-2', 'group-hover:translate-y-0');
+                button.classList.add('opacity-100');
+            });
+        }
+    });
+</script>
+{% endblock %} 

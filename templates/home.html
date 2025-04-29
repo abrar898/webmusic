@@ -1,0 +1,300 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAYA STUDIO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #121212;
+        }
+        .main-sidebar {
+            background-color: #000000;
+            width: 240px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 50;
+        }
+        .main-content {
+            margin-left: 240px;
+            background: linear-gradient(to bottom, #1e1e1e, #121212);
+            min-height: 100vh;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: #b3b3b3;
+            transition: color 0.2s;
+        }
+        .nav-link:hover {
+            color: #ffffff;
+        }
+        .nav-link.active {
+            color: #ffffff;
+        }
+        .genre-card {
+            border-radius: 8px;
+            transition: background-color 0.3s;
+            overflow: hidden;
+            position: relative;
+            aspect-ratio: 1.8/1;
+        }
+        .genre-card:hover {
+            background-color: #282828;
+        }
+        .playlist-section {
+            background-color: #121212;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        .top-bar {
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .search-input {
+            background-color: #242424;
+            color: white;
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            width: 100%;
+            max-width: 400px;
+        }
+        .search-input:focus {
+            background-color: #2a2a2a;
+            outline: none;
+        }
+        .song-card {
+            background-color: #181818;
+            transition: background-color 0.3s;
+            border-radius: 6px;
+            padding: 1rem;
+        }
+        .song-card:hover {
+            background-color: #282828;
+        }
+        .audio-player {
+            background-color: #181818;
+            border-top: 1px solid #282828;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Sidebar -->
+    <aside class="main-sidebar overflow-y-auto">
+        <!-- Logo -->
+        <div class="px-6 py-6">
+            <div class="text-2xl font-bold text-white">Naya Studio</div>
+        </div>
+
+        <!-- Main Navigation -->
+        <nav class="mt-6">
+            <a href="{% url 'song_list' %}" class="nav-link {% if request.resolver_match.url_name == 'song_list' %}active{% endif %}">
+                <svg class="w-6 h-6 mr-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12.5 3.247a1 1 0 0 0-1 0L4 7.577V20h4.5v-6a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v6H20V7.577l-7.5-4.33zm-2-1.732a3 3 0 0 1 3 0l7.5 4.33a2 2 0 0 1 1 1.732V21a1 1 0 0 1-1 1h-6.5a1 1 0 0 1-1-1v-6h-3v6a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.577a2 2 0 0 1 1-1.732l7.5-4.33z"/>
+                </svg>
+                Home
+            </a>
+            <a href="#" class="nav-link">
+                <svg class="w-6 h-6 mr-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28zm-7.407 9.279c0-4.006 3.302-7.279 7.407-7.279s7.407 3.273 7.407 7.279-3.302 7.279-7.407 7.279-7.407-3.273-7.407-7.279z"/>
+                </svg>
+                Search
+            </a>
+            <a href="{% url 'library' %}" class="nav-link {% if request.resolver_match.url_name == 'library' %}active{% endif %}">
+                <svg class="w-6 h-6 mr-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14.5 2.134a1 1 0 0 1 1 0l6 3.464a1 1 0 0 1 .5.866V21a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1V3a1 1 0 0 1 .5-.866zM16 4.732V20h4V7.041l-4-2.309zM3 22a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H3zm1-2h4V4H4v16z"/>
+                </svg>
+                Your Library
+            </a>
+        </nav>
+
+        <!-- Create and Liked -->
+        <div class="mt-6">
+            <a href="#" class="nav-link">
+                <div class="bg-white bg-opacity-10 rounded-lg p-4 flex items-center">
+                    <svg class="w-6 h-6 mr-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 3a1 1 0 0 1 1 1v7h7a1 1 0 1 1 0 2h-7v7a1 1 0 1 1-2 0v-7H4a1 1 0 1 1 0-2h7V4a1 1 0 0 1 1-1z"/>
+                    </svg>
+                    Create Playlist
+                </div>
+            </a>
+            <a href="#" class="nav-link mt-2">
+                <div class="bg-gradient-to-br from-purple-700 to-blue-900 rounded-lg p-4 flex items-center">
+                    <svg class="w-6 h-6 mr-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M15.724 4.22A4.313 4.313 0 0 0 12.192.814a4.269 4.269 0 0 0-3.622 1.13.837.837 0 0 1-1.14 0 4.272 4.272 0 0 0-6.21 5.855l5.916 7.05a1.128 1.128 0 0 0 1.727 0l5.916-7.05a4.228 4.228 0 0 0 .945-3.577z"/>
+                    </svg>
+                    Liked Songs
+                </div>
+            </a>
+        </div>
+
+        <!-- Playlists -->
+        <div class="mt-6 px-6">
+            <h2 class="text-sm font-semibold text-gray-400 mb-4">PLAYLISTS</h2>
+            <div class="space-y-2">
+                {% for playlist in playlists %}
+                <a href="{% url 'playlist_detail' playlist.id %}" class="block text-gray-300 hover:text-white truncate">
+                    {{ playlist.name }}
+                </a>
+                {% empty %}
+                <p class="text-gray-500">No playlists yet</p>
+                {% endfor %}
+            </div>
+        </div>
+    </aside>
+
+    {% block content %}{% endblock %}
+
+    {% block audio %}
+    <!-- Audio Player -->
+    <div class="fixed bottom-0 left-0 right-0 h-20 bg-[#181818] border-t border-[#282828] px-4 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <img id="current-song-image" src="https://via.placeholder.com/56" alt="Now Playing" class="w-14 h-14 rounded">
+            <div>
+                <h4 id="current-song-title" class="font-medium text-white">Select a song</h4>
+                <p id="current-song-artist" class="text-sm text-gray-400">-</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col items-center justify-center flex-1 max-w-2xl">
+            <div class="flex items-center space-x-4 mb-2">
+                <button class="text-gray-400 hover:text-white" onclick="previousSong()">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                    </svg>
+                </button>
+                <button id="play-pause-btn" class="w-8 h-8 bg-white rounded-full flex items-center justify-center hover:scale-105 transition-transform" onclick="togglePlay()">
+                    <svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                </button>
+                <button class="text-gray-400 hover:text-white" onclick="nextSong()">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 18V6l8.5 6z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="w-full flex items-center space-x-2">
+                <span id="current-time" class="text-xs text-gray-400">0:00</span>
+                <div class="flex-1 h-1 bg-gray-600 rounded-full">
+                    <div id="progress-bar" class="h-full bg-white rounded-full" style="width: 0%"></div>
+                </div>
+                <span id="duration" class="text-xs text-gray-400">0:00</span>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <button class="text-gray-400 hover:text-white">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+    let currentAudio = null;
+    let currentSongId = null;
+
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        seconds = Math.floor(seconds % 60);
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function updateProgressBar() {
+        if (currentAudio) {
+            const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            document.getElementById('current-time').textContent = formatTime(currentAudio.currentTime);
+            document.getElementById('duration').textContent = formatTime(currentAudio.duration);
+        }
+    }
+
+    function playSong(songId, audioUrl, title, artist) {
+        if (currentAudio) {
+            currentAudio.pause();
+            if (currentSongId === songId) {
+                togglePlay();
+                return;
+            }
+        }
+
+        const audio = document.getElementById(`music-${songId}`);
+        currentAudio = audio;
+        currentSongId = songId;
+
+        // Update player UI
+        document.getElementById('current-song-title').textContent = title;
+        document.getElementById('current-song-artist').textContent = artist;
+        const songImage = document.querySelector(`#music-${songId}`).previousElementSibling.querySelector('img').src;
+        document.getElementById('current-song-image').src = songImage;
+
+        audio.play();
+        updatePlayPauseButton();
+
+        audio.addEventListener('timeupdate', updateProgressBar);
+    }
+
+    function togglePlay() {
+        if (!currentAudio) return;
+        
+        if (currentAudio.paused) {
+            currentAudio.play();
+        } else {
+            currentAudio.pause();
+        }
+        updatePlayPauseButton();
+    }
+
+    function updatePlayPauseButton() {
+        const button = document.getElementById('play-pause-btn');
+        if (!currentAudio || currentAudio.paused) {
+            button.innerHTML = '<svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+        } else {
+            button.innerHTML = '<svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+        }
+    }
+
+    function toggleProfile() {
+        document.getElementById("profileMenu").classList.toggle("hidden");
+    }
+
+    // Load song durations
+    document.addEventListener('DOMContentLoaded', function() {
+        const audioElements = document.querySelectorAll('audio');
+        audioElements.forEach(audio => {
+            audio.addEventListener('loadedmetadata', function() {
+                const songId = this.id.split('-')[1];
+                document.getElementById(`duration-${songId}`).textContent = formatTime(this.duration);
+            });
+        });
+    });
+    </script>
+    {% endblock %}
+</body>
+</html>
+
+

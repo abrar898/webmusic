@@ -1,0 +1,81 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# If using PostgreSQL or other DBs, ignore data files if applicable
+*.pgdata
+
+# Media / uploaded files
+/media
+/media/*
+
+# Static files (can be generated)
+staticfiles/
+static/
+
+# Ignore collected static files (if collected)
+static_root/
+
+# Virtual environment
+.env
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# VS Code settings
+.vscode/
+
+# PyCharm
+.idea/
+
+# macOS
+.DS_Store
+
+# Test/migrations artifacts
+*.cover
+coverage.*
+htmlcov/
+.tox/
+.nox/
+.cache/
+pytest_cache/
+
+# Migrations (optional: if you want to reset them)
+# **Only ignore if you're regenerating them**
+# ** Uncomment below if needed **
+# */migrations/
+# */migrations/*.py
+# */migrations/*.pyc
+
+# pip environment files
+pip-log.txt
+pip-delete-this-directory.txt
+
+# MyPy
+.mypy_cache/
+
+# Pyre
+.pyre/
+
+# Profiling
+profiler.log
+
+# dotenv
+.env.*
+*.env
+
+# Jupyter Notebooks
+.ipynb_checkpoints

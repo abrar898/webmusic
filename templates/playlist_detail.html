@@ -1,0 +1,471 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ playlist.name }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen">
+    <!-- Top Bar -->
+    <div class="top-bar sticky top-0 z-40 px-4 md:px-8 py-4 flex items-center justify-between bg-[#121212] bg-opacity-90">
+        <div class="flex items-center space-x-2 md:space-x-4">
+            <a href="{% url 'song_list' %}" class="bg-black bg-opacity-50 rounded-full p-1 md:block">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </a>
+            <div class="text-white text-xl md:text-2xl font-bold">{{ playlist.name }}</div>
+        </div>
+
+        <!-- User Menu -->
+        <div class="relative">
+            <button onclick="toggleProfile()" class="flex items-center space-x-1 md:space-x-2 hover:bg-[#282828] rounded-full p-1">
+                <img src="https://via.placeholder.com/40" alt="Profile" class="w-6 h-6 md:w-8 md:h-8 rounded-full">
+                <span class="font-medium text-sm md:text-base hidden md:inline">{{ request.user.username }}</span>
+                <svg class="w-3 h-3 md:w-4 md:h-4 hidden md:block" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+            </button>
+            <div id="profileMenu" class="absolute right-0 mt-2 w-48 bg-[#282828] rounded-md shadow-lg hidden z-50">
+                <a href="#" class="block px-4 py-2 text-sm hover:bg-[#3e3e3e]">Profile</a>
+                <a href="#" class="block px-4 py-2 text-sm hover:bg-[#3e3e3e]">Settings</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Playlist Header -->
+    <div class="relative">
+        <div class="w-full h-64 md:h-80 bg-gradient-to-b from-blue-800 to-[#121212]"></div>
+        <div class="absolute bottom-0 left-0 w-full px-4 md:px-8 pb-4 md:pb-6 flex items-end">
+            <div class="flex items-center">
+                <div class="w-36 h-36 md:w-48 md:h-48 rounded-lg overflow-hidden border-4 border-[#121212] mr-4 md:mr-6">
+                {% if playlist.songs.first and playlist.songs.first.image %}
+                        <img src="{{ playlist.songs.first.image.url }}" alt="{{ playlist.name }}" class="w-full h-full object-cover">
+            {% else %}
+                        <div class="w-full h-full bg-gradient-to-br from-indigo-600 to-blue-500 flex items-center justify-center">
+                            <span class="text-4xl md:text-6xl font-bold text-white">{{ playlist.name|slice:":1" }}</span>
+                </div>
+            {% endif %}
+        </div>
+        <div>
+                    <div class="text-sm uppercase text-gray-300 font-bold">Playlist</div>
+                    <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold text-white">{{ playlist.name }}</h1>
+                    <p class="text-gray-300 mt-2">{{ playlist.description }}</p>
+                    <p class="text-gray-300 mt-1">Created by: {{ playlist.user.username }} • {{ playlist.songs.count }} songs</p>
+                
+                <div class="mt-4 flex space-x-3">
+                        <button onclick="playFirstSong()" class="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-full transition-colors duration-200 flex items-center">
+                            <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        Play
+                    </button>
+                    {% if user == playlist.user %}
+                    <a href="{% url 'playlist_edit' playlist.id %}" class="border border-white hover:bg-white hover:text-black text-white py-2 px-6 rounded-full transition-colors duration-200">
+                        Edit
+                    </a>
+                    <form method="post" action="{% url 'playlist_delete' playlist.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="border border-white hover:bg-white hover:text-black text-white py-2 px-6 rounded-full transition-colors duration-200" onclick="return confirm('Are you sure you want to delete this playlist?')">
+                            Delete
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+        </div>
+    </div>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="px-4 md:px-8 py-4 md:py-6 pb-24">
+        <!-- Songs Section -->
+        <section class="mb-8">
+            <h2 class="text-xl md:text-2xl font-bold mb-4">Songs</h2>
+            <div class="bg-[#121212] rounded-lg overflow-hidden">
+                <!-- Headers -->
+                <div class="grid grid-cols-[16px_4fr_2fr] md:grid-cols-[16px_4fr_3fr_2fr] gap-2 md:gap-4 px-2 md:px-4 py-2 text-xs md:text-sm text-gray-400 border-b border-gray-700">
+                    <div class="text-center">#</div>
+                    <div>TITLE</div>
+                    <div class="hidden md:block">ARTIST</div>
+                    <div class="text-right">DURATION</div>
+                </div>
+
+                <!-- Songs -->
+                {% if playlist.songs.all %}
+                {% for song in playlist.songs.all %}
+                    <div class="grid grid-cols-[16px_4fr_2fr] md:grid-cols-[16px_4fr_3fr_2fr] gap-2 md:gap-4 px-2 md:px-4 py-2 group hover:bg-[#282828] rounded-md transition-colors song-row" 
+                     data-song-id="{{ song.id }}"
+                     data-song-url="{{ song.audio_file.url }}"
+                     data-song-title="{{ song.title }}"
+                         data-song-artist="{{ song.artist }}">
+                        <div class="flex items-center justify-center text-gray-400 group-hover:text-white">
+                            <span class="group-hover:hidden">{{ forloop.counter }}</span>
+                            <button class="hidden group-hover:block" onclick="playSong('{{ song.id }}', '{{ song.audio_file.url }}', '{{ song.title }}', '{{ song.artist }}')">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                    </svg>
+                            </button>
+                        </div>
+                        <div class="flex items-center space-x-2 md:space-x-4 min-w-0">
+                            <img src="{% if song.image %}{{ song.image.url }}{% else %}{% static 'img/default-cover.png' %}{% endif %}" 
+                                 alt="{{ song.title }}" class="w-8 h-8 md:w-10 md:h-10 flex-shrink-0">
+                            <div class="truncate min-w-0">
+                                <div class="text-white text-sm md:text-base font-medium truncate">{{ song.title }}</div>
+                                <div class="text-xs text-gray-400 md:hidden truncate">{{ song.artist }}</div>
+                            </div>
+                            <audio id="music-{{ song.id }}" src="{{ song.audio_file.url }}" preload="metadata"></audio>
+                        </div>
+                        <div class="hidden md:flex items-center text-gray-400 truncate">
+                            {{ song.artist }}
+            </div>
+                        <div class="flex items-center justify-end text-gray-400 text-sm">
+                            <span id="duration-{{ song.id }}">--:--</span>
+                        </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-12">
+                    <p class="text-gray-400 mb-4">No songs in this playlist yet.</p>
+                {% if user == playlist.user %}
+                    <a href="{% url 'add_song_to_playlist' playlist.id %}" class="inline-block px-6 py-3 bg-white text-black rounded-full hover:scale-105 transition-transform">
+                    Add Songs
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        </section>
+    </div>
+    </div>
+
+<style>
+    /* Additional styles for the playlist page */
+    div.bg-\[\#181818\]:hover button.opacity-0,
+    div.bg-\[\#181818\]:hover div.opacity-0 {
+        opacity: 1;
+    }
+    
+    .card-hover-effect:hover .play-button {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .card-hover-effect .play-button {
+        opacity: 0;
+        transform: translateY(8px);
+        transition: all 0.3s ease;
+    }
+    
+    /* Make play buttons visible on touch devices */
+    @media (hover: none) {
+        .play-button {
+            opacity: 0.8;
+            transform: translateY(0);
+        }
+        
+        .group:hover .hidden {
+            display: flex !important;
+        }
+        
+        .group:hover .group-hover\:hidden {
+            display: none !important;
+        }
+    }
+    
+    /* Fix for player bar overlap */
+    .main-content {
+        padding-bottom: 4rem;
+    }
+    
+    /* Improve text truncation on small screens */
+    @media (max-width: 640px) {
+        .truncate {
+            max-width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block audio %}
+<!-- Audio Player -->
+<div class="fixed bottom-0 left-0 right-0 h-20 bg-[#181818] border-t border-[#282828] px-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+            <img id="current-song-image" src="https://via.placeholder.com/56" alt="Now Playing" class="w-14 h-14 rounded">
+                <div>
+            <h4 id="current-song-title" class="font-medium text-white">Select a song</h4>
+                <p id="current-song-artist" class="text-sm text-gray-400">-</p>
+            </div>
+            </div>
+            
+        <div class="flex flex-col items-center justify-center flex-1 max-w-2xl">
+            <div class="flex items-center space-x-4 mb-2">
+                <button class="text-gray-400 hover:text-white" onclick="previousSong()">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                        </svg>
+                    </button>
+                <button id="play-pause-btn" class="w-8 h-8 bg-white rounded-full flex items-center justify-center hover:scale-105 transition-transform" onclick="togglePlay()">
+                        <svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </button>
+                <button class="text-gray-400 hover:text-white" onclick="nextSong()">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6 18V6l8.5 6z"/>
+                        </svg>
+                    </button>
+                </div>
+            <div class="w-full flex items-center space-x-2">
+                <span id="current-time" class="text-xs text-gray-400">0:00</span>
+                <div class="flex-1 h-1 bg-gray-600 rounded-full">
+                    <div id="progress-bar" class="h-full bg-white rounded-full" style="width: 0%"></div>
+                </div>
+                <span id="duration" class="text-xs text-gray-400">0:00</span>
+            </div>
+                </div>
+
+        <div class="flex items-center space-x-4">
+            <button id="volume-btn" class="text-gray-400 hover:text-white" onclick="toggleMute()">
+                <svg id="volume-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                </svg>
+            </button>
+            <div class="w-24 hidden md:block">
+                <input type="range" id="volume-slider" class="w-full h-1 bg-gray-600 rounded-full appearance-none cursor-pointer" min="0" max="1" step="0.01" value="1">
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeSongElements();
+        initializeVolumeControl();
+        loadSongDurations();
+    });
+
+    let currentAudio = null;
+    let currentSongId = null;
+    let songElements = [];
+    let currentIndex = -1;
+    let isMuted = false;
+    let volumeBeforeMute = 1;
+    
+    // Function to play the first song in the playlist
+    function playFirstSong() {
+        if (songElements.length > 0) {
+            const firstSong = songElements[0];
+            playSong(firstSong.id, firstSong.url, firstSong.title, firstSong.artist);
+        }
+    }
+    
+    function toggleProfile() {
+        const menu = document.getElementById('profileMenu');
+        menu.classList.toggle('hidden');
+    }
+    
+    function initializeVolumeControl() {
+        const volumeSlider = document.getElementById('volume-slider');
+        
+        volumeSlider.addEventListener('input', function() {
+            const volume = parseFloat(this.value);
+            if (currentAudio) {
+                currentAudio.volume = volume;
+            }
+            updateVolumeIcon(volume);
+        });
+    }
+    
+    function updateVolumeIcon(volume) {
+        const volumeIcon = document.getElementById('volume-icon');
+        
+        if (volume === 0 || isMuted) {
+            volumeIcon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
+        } else if (volume < 0.5) {
+            volumeIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>';
+        } else {
+            volumeIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
+        }
+    }
+    
+    function toggleMute() {
+        if (!currentAudio) return;
+        
+        const volumeSlider = document.getElementById('volume-slider');
+        
+        if (isMuted) {
+            currentAudio.volume = volumeBeforeMute;
+            volumeSlider.value = volumeBeforeMute;
+            isMuted = false;
+        } else {
+            volumeBeforeMute = currentAudio.volume;
+            currentAudio.volume = 0;
+            volumeSlider.value = 0;
+            isMuted = true;
+        }
+        
+        updateVolumeIcon(currentAudio.volume);
+    }
+    
+    function initializeSongElements() {
+        const songRows = document.querySelectorAll('.song-row');
+        songElements = [];
+        
+        songRows.forEach((row, index) => {
+            songElements.push({
+                id: row.dataset.songId,
+                url: row.dataset.songUrl,
+                title: row.dataset.songTitle,
+                artist: row.dataset.songArtist,
+                image: row.querySelector('img').src,
+                index: index
+            });
+        });
+        
+        console.log(`Loaded ${songElements.length} songs`);
+    }
+    
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        seconds = Math.floor(seconds % 60);
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function updateProgressBar() {
+        if (currentAudio) {
+            const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            document.getElementById('current-time').textContent = formatTime(currentAudio.currentTime);
+            document.getElementById('duration').textContent = formatTime(currentAudio.duration);
+        }
+    }
+
+    function loadSongDurations() {
+        const audioElements = document.querySelectorAll('audio');
+        console.log(`Loading durations for ${audioElements.length} songs`);
+        
+        audioElements.forEach(audio => {
+            // Add event listener for when metadata is loaded
+            audio.addEventListener('loadedmetadata', function() {
+                const songId = this.id.split('-')[1];
+                console.log(`Duration loaded for song ${songId}: ${this.duration}`);
+                document.getElementById(`duration-${songId}`).textContent = formatTime(this.duration);
+            });
+            
+            // Force load of metadata
+            audio.load();
+        });
+    }
+
+    function playSong(songId, songUrl, title, artist) {
+        console.log(`Playing song: ${title} by ${artist}`);
+        
+        if (currentAudio) {
+            currentAudio.pause();
+            if (currentSongId === songId) {
+                togglePlay();
+                return;
+            }
+        }
+        
+        const audio = document.getElementById(`music-${songId}`);
+        if (!audio) {
+            console.error(`Audio element not found for song ${songId}`);
+            return;
+        }
+        
+        currentAudio = audio;
+        currentSongId = songId;
+        
+        // Find the index of the current song in our array
+        currentIndex = songElements.findIndex(song => song.id === songId);
+        
+        // Update player UI
+        document.getElementById('current-song-title').textContent = title;
+        document.getElementById('current-song-artist').textContent = artist;
+        
+        // Find the image for this song
+        const songRow = document.querySelector(`.song-row[data-song-id="${songId}"]`);
+        if (songRow) {
+            const img = songRow.querySelector('img');
+            if (img) {
+                document.getElementById('current-song-image').src = img.src;
+            }
+        }
+        
+        // Play the song
+        audio.play()
+            .then(() => {
+                console.log('Playing audio');
+                updatePlayPauseButton();
+            })
+            .catch(error => {
+                console.error('Error playing audio:', error);
+            });
+        
+        // Setup event listeners
+        audio.addEventListener('timeupdate', updateProgressBar);
+        audio.addEventListener('ended', () => {
+            nextSong();
+        });
+        
+        // Highlight the current playing song
+        document.querySelectorAll('.song-row').forEach(row => {
+            row.classList.remove('bg-[#282828]');
+        });
+        if (songRow) {
+            songRow.classList.add('bg-[#282828]');
+        }
+    }
+
+    function togglePlay() {
+        if (!currentAudio) return;
+        
+        if (currentAudio.paused) {
+            currentAudio.play();
+        } else {
+            currentAudio.pause();
+        }
+        updatePlayPauseButton();
+    }
+
+    function updatePlayPauseButton() {
+        const button = document.getElementById('play-pause-btn');
+        if (!currentAudio || currentAudio.paused) {
+            button.innerHTML = '<svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+        } else {
+            button.innerHTML = '<svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+        }
+    }
+
+    function nextSong() {
+        if (songElements.length === 0 || currentIndex === -1) return;
+        
+        let nextIndex = currentIndex + 1;
+        if (nextIndex >= songElements.length) {
+            nextIndex = 0; // Loop back to the first song
+        }
+        
+        const nextSong = songElements[nextIndex];
+        playSong(nextSong.id, nextSong.url, nextSong.title, nextSong.artist);
+    }
+
+    function previousSong() {
+        if (songElements.length === 0 || currentIndex === -1) return;
+        
+        // If we're at the beginning of the track, go to previous song
+        // Otherwise, restart the current song
+        if (currentAudio && currentAudio.currentTime > 3) {
+            currentAudio.currentTime = 0;
+            return;
+        }
+        
+        let prevIndex = currentIndex - 1;
+        if (prevIndex < 0) {
+            prevIndex = songElements.length - 1; // Loop to the last song
+        }
+        
+        const prevSong = songElements[prevIndex];
+        playSong(prevSong.id, prevSong.url, prevSong.title, prevSong.artist);
+    }
+</script>
+{% endblock %} 

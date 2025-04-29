@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="main-content bg-[#121212] min-h-screen p-8">
+    <h1 class="text-3xl font-bold mb-8 text-white">All Artists</h1>
+    
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        {% for artist in artists %}
+        <a href="{% url 'artist_detail' artist.id %}" class="bg-[#181818] hover:bg-[#282828] p-6 rounded-lg transition-colors duration-300 flex flex-col items-center text-center">
+            <div class="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden mb-4">
+                <img src="{{ artist.image.url|default:'https://via.placeholder.com/150' }}" alt="{{ artist.name }}" class="w-full h-full object-cover">
+            </div>
+            <h3 class="font-semibold text-white text-lg">{{ artist.name }}</h3>
+            <p class="text-sm text-gray-400">Artist</p>
+        </a>
+        {% empty %}
+        <p class="col-span-full text-center text-gray-400 py-12">No artists available yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

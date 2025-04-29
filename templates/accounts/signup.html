@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block extrahead %}
+<style>
+    .signup-background {
+        background-image: url('{% static "img/signup-bg.jpg" %}');
+        background-size: cover;
+        background-position: center;
+    }
+    
+    /* Fix date picker visibility in dark mode */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        background-color: #4f46e5;
+        padding: 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+    
+    /* Style the file upload button */
+    .file-upload-container {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+        width: 100%;
+    }
+    
+    .file-upload-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #4f46e5;
+        color: white;
+        padding: 14px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 500;
+        margin-top: 5px;
+        font-size: 16px;
+    }
+    
+    .file-upload-label:hover {
+        background-color: #4338ca;
+    }
+    
+    .file-upload-input {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+    
+    .file-name-display {
+        margin-top: 5px;
+        font-size: 0.875rem;
+        color: #d1d5db;
+    }
+    
+    /* Custom date field container */
+    .date-field-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    
+    .date-field-container::after {
+        content: "📅";
+        position: absolute;
+        right: 12px;
+        top: 12px;
+        font-size: 22px;
+        pointer-events: none;
+    }
+    
+    /* Override any background color inheritance */
+    input, select, textarea {
+        background-color: #1e3a8a !important; /* dark blue */
+        border-color: #3b82f6 !important;
+        height: 50px !important;
+        width: 100% !important;
+        font-size: 16px !important;
+    }
+    
+    /* Add more spacing between form elements */
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    /* Make form elements more prominent */
+    .form-label {
+        font-size: 16px;
+        margin-bottom: 8px;
+        display: block;
+        color: #f3f4f6;
+    }
+    
+    /* Signup button styling */
+    .signup-btn {
+        height: 54px;
+        font-size: 18px;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center p-4 signup-background">
+    <div class="w-full max-w-md bg-black bg-opacity-80 p-8 rounded-lg">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-2">Sign Up</h1>
+            <p class="text-gray-400">Create your account to start listening</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="bg-red-500 bg-opacity-10 border border-red-500 text-red-500 px-4 py-3 rounded mb-4">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" class="space-y-5" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.username.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.name }}
+                {% if form.name.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <p class="text-red-500 bg-opacity-10 text-xs mt-1">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.dob.id_for_label }}" class="form-label">Date of Birth</label>
+                <div class="date-field-container">
+                    {{ form.dob }}
+                </div>
+                <small class="text-blue-400 text-xs mt-1 block">👆 Click the calendar icon on the right to select a date</small>
+                {% if form.dob.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.dob.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.country.id_for_label }}" class="form-label">Country</label>
+                {{ form.country }}
+                {% if form.country.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.country.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.profile_image.id_for_label }}" class="form-label">Profile Picture</label>
+                <div class="file-upload-container">
+                    <label class="file-upload-label">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        Choose a Profile Image
+                        <input type="file" name="profile_image" id="{{ form.profile_image.id_for_label }}" class="file-upload-input" accept="image/*">
+                    </label>
+                    <div id="file-name-display" class="file-name-display">No file selected</div>
+                </div>
+                {% if form.profile_image.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.profile_image.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
+                {{ form.password1 }}
+                {% if form.password1.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.password1.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
+                {{ form.password2 }}
+                {% if form.password2.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.password2.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <button type="submit" 
+                        class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-4 rounded transition duration-200 signup-btn">
+                    Sign Up
+                </button>
+            </div>
+        </form>
+
+        <div class="mt-6 text-gray-400">
+            <p>Already have an account? <a href="{% url 'login' %}" class="text-white hover:underline">Sign in</a></p>
+            <p class="mt-4 text-xs">
+                By signing up, you agree to our Terms of Use and Privacy Policy.
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Display the selected file name
+    document.getElementById('{{ form.profile_image.id_for_label }}').addEventListener('change', function() {
+        const fileName = this.files[0] ? this.files[0].name : 'No file selected';
+        document.getElementById('file-name-display').textContent = fileName;
+    });
+</script>
+{% endblock %}
